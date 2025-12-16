@@ -1,6 +1,6 @@
-/* Stile per la Navbar */
+/* STILE DELLA NAVBAR */
 .navbar {
-  background-color: #F2F0E5; 
+  background-color: #f0e0cc; 
   width: 100%;
   padding: 18px clamp(10px, 4vw, 48px); 
   position: sticky; 

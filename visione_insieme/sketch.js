@@ -61,6 +61,8 @@ let hoveredAreaIndex = -1;
 let isPopupOpen = false;
 let infoIconBounds = []; 
 let currentPopupContent = null;
+// Variabile per tracciare se il mouse è sopra un elemento cliccabile
+let isMouseOverClickable = false;
 
 const POPUP_WIDTH = 750;  
 const POPUP_HEIGHT = 550; 
@@ -76,18 +78,17 @@ let finalGapAngle;
 let finalWedgeAngle; 
 
 function preload() {
-  // Sfondo: cartagiustissima.jpg
   try { cartaSfondo = loadImage('immagini/cartagiustissima.jpg'); } catch(e) {}
   try { cartaPopup = loadImage('immagini/carta2.jpg'); } catch(e) {} 
   
-  try { imgAnimali1 = loadImage('immagini/infoanimali1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infoanimali1.png"); }
-  try { imgAnimali2 = loadImage('immagini/infoanimali2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infoanimali2.png"); }
-  try { imgPiante1 = loadImage('immagini/infopiante1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infopiante1.png"); }
-  try { imgPiante2 = loadImage('immagini/infopiante2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infopiante2.png"); }
-  try { imgFunghi1 = loadImage('immagini/infofunghi1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infofunghi1.png"); }
-  try { imgFunghi2 = loadImage('immagini/infofunghi2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infofunghi2.png"); }
-  try { imgChromisti1 = loadImage('immagini/infocromisti1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infocromisti1.png"); }
-  try { imgChromisti2 = loadImage('immagini/infocromisti2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infocromisti2.png"); }
+  try { imgAnimali1 = loadImage('immagini/infoanimali1.png'); } catch(e) { console.error("Errore"); }
+  try { imgAnimali2 = loadImage('immagini/infoanimali2.png'); } catch(e) { console.error("Errore"); }
+  try { imgPiante1 = loadImage('immagini/infopiante1.png'); } catch(e) { console.error("Errore"); }
+  try { imgPiante2 = loadImage('immagini/infopiante2.png'); } catch(e) { console.error("Errore"); }
+  try { imgFunghi1 = loadImage('immagini/infofunghi1.png'); } catch(e) { console.error("Errore"); }
+  try { imgFunghi2 = loadImage('immagini/infofunghi2.png'); } catch(e) { console.error("Errore"); }
+  try { imgChromisti1 = loadImage('immagini/infocromisti1.png'); } catch(e) { console.error("Errore"); }
+  try { imgChromisti2 = loadImage('immagini/infocromisti2.png'); } catch(e) { console.error("Errore"); }
   
   table = loadTable("regni_aree.csv", "csv", "header");
 }
@@ -97,14 +98,6 @@ function setup() {
   pixelDensity(2);
   angleMode(RADIANS);
   textFont("cormorant-garamond");
-
-  let navbar = select('.navbar');
-  if (navbar) {
-    navbar.style('background-image', 'url("immagini/carta2.jpg")');
-    navbar.style('background-size', 'cover');
-    navbar.style('background-position', 'center');
-    navbar.style('border-bottom', '1px solid #d4d4d4'); 
-  }
 
   parseData();
   sortAreasBySize(); 
@@ -156,8 +149,38 @@ function computeLayout() {
 
 function updateHoverState() {
   hoveredAreaIndex = -1;
-  if (wheelProgress < 0.99 || isPopupOpen) return;
+  isMouseOverClickable = false; // Reset dello stato click ogni frame
 
+  // 1. Controllo PULSANTE DI CHIUSURA se il popup è aperto
+  if (isPopupOpen) {
+    const popX = width / 2;
+    const popY = height / 2;
+    const margin = 30; 
+    const boxLeft = popX - POPUP_WIDTH / 2;
+    const boxTop = popY - POPUP_HEIGHT / 2;
+    const closeBtnX = boxLeft + POPUP_WIDTH - margin;
+    const closeBtnY = boxTop + margin;
+    const btnSize = 30;
+
+    if (dist(mouseX, mouseY, closeBtnX, closeBtnY) < btnSize) {
+      isMouseOverClickable = true;
+    }
+    return; // Se il popup è aperto, non controlliamo altro
+  }
+
+  // Se l'animazione non è finita, usciamo
+  if (wheelProgress < 0.99) return;
+
+  // 2. Controllo ICONE INFO (Legend)
+  for (let b of infoIconBounds) {
+    if (dist(mouseX, mouseY, b.x, b.y) < 15) {
+      isMouseOverClickable = true;
+      // Non facciamo return qui perché potremmo volere l'hover anche sugli spicchi 
+      // (anche se le icone sono in un'altra zona)
+    }
+  }
+
+  // 3. Controllo SPICCHI DEL GRAFICO
   const relX = mouseX - wheelCenterX;
   const relY = mouseY - wheelCenterY; 
   const distMouse = sqrt(relX*relX + relY*relY);
@@ -184,6 +207,7 @@ function updateHoverState() {
       const areaMaxR = map(areas[i].total, 0, maxTotal, INNER_FIXED_RADIUS + 20, outerRadius);
       if (distMouse <= areaMaxR + 5) {
         hoveredAreaIndex = i;
+        isMouseOverClickable = true; // È uno spicchio cliccabile
         return;
       }
     }
@@ -195,7 +219,6 @@ function draw() {
     wheelProgress = min(wheelProgress + WHEEL_SPEED, 1.0);
   }
   
-  // Animazione disabilitata (istantanea)
   if (isPopupOpen) {
     animProgress = 1.0;
   } else {
@@ -203,6 +226,13 @@ function draw() {
   }
 
   updateHoverState();
+
+  // *** GESTIONE CURSORE ***
+  if (isMouseOverClickable) {
+    cursor(HAND); // Manina
+  } else {
+    cursor(ARROW); // Freccia normale
+  }
 
   if (cartaSfondo) image(cartaSfondo, 0, 0, width, height);
   else background(bgColor);
@@ -442,6 +472,7 @@ function mouseClicked() {
       isPopupOpen = false;
       return;
     }
+    return;
   }
   
   if (!isPopupOpen && wheelProgress >= 1.0) {
@@ -453,6 +484,11 @@ function mouseClicked() {
       }
     }
   }
+
+  // NAVIGAZIONE AL CLICK DELLO SPICCHIO
+  if (!isPopupOpen && wheelProgress >= 1.0 && hoveredAreaIndex !== -1) {
+    window.location.href = "../dettaglio/index.html";
+  }
 }
 
 function drawTitle() {
@@ -462,21 +498,16 @@ function drawTitle() {
   textAlign(LEFT, TOP);
   textStyle(NORMAL); 
   
-  // Calcola la dimensione ATLANTE (2.5x, ridotto del 25%)
   const sz_custom = constrain(width * 0.09375, 56, 225); 
-  
-  // Calcola la dimensione BASE (ridotta del 25%)
   const sz_base = constrain(width * 0.03375, 22.5, 81); 
   
   const startX = 60; 
   let startY = 20; 
   
-  // --- Riga 1: Atlante (Dimensione 2.5x, ridotta) ---
   textSize(sz_custom);
   text("Atlante", startX, startY);
   startY += sz_custom * 1.0; 
   
-  // --- Riga 2: delle Specie a Rischio (Dimensione ridotta) ---
   textSize(sz_base);
   text("delle Specie a Rischio", startX, startY);
   pop();
@@ -490,11 +521,9 @@ function drawLegend() {
   const sz = constrain(width * 0.05, 30, 60); 
   const legendX = 60; 
   
-  // Calcolo per posizionare la legenda sotto il titolo ingrandito (aggiornato)
   const title_sz_custom = constrain(width * 0.09375, 56, 225);
   const title_sz_base = constrain(width * 0.03375, 22.5, 81); 
   
-  // Calcolo della posizione Y della legenda basato sul nuovo margine (20)
   let currentY = 20 + title_sz_custom * 1.0 + title_sz_base * 1.0 + 40; 
 
   const rowH = 30;
@@ -601,31 +630,15 @@ function drawReferenceCircles() {
   pop();
 }
 
-/**
- * Funzione helper per disegnare immagini con strategia "COVER" (riempimento completo dello slot).
- * Usa max() per calcolare lo scaling e ri-introduce il centramento per visualizzare la porzione centrale.
- */
 function drawScaledImage(img, slotX, slotW, slotY, slotH, scaleMultiplier) {
      if (img) {
-        // Calcola fattore di scala naturale per riempire completamente lo slot (strategia COVER)
         let naturalScale = max(slotW / img.width, slotH / img.height);
-        
-        // Applica il moltiplicatore richiesto (1.0x in questa versione)
         const scaleFactor = naturalScale * scaleMultiplier;
-        
         const w = img.width * scaleFactor;
         const h = img.height * scaleFactor;
-
-        // Centra l'immagine all'interno dello slot, garantendo che i bordi dello slot
-        // siano coperti (anche se parte dell'immagine finisce fuori dallo slot).
         let drawX = slotX + (slotW - w) / 2;
         let drawY = slotY + (slotH - h) / 2;
-        
-        image(img, 
-              drawX, 
-              drawY, 
-              w, 
-              h); 
+        image(img, drawX, drawY, w, h); 
      }
 }
 
@@ -661,14 +674,12 @@ function drawPopup() {
   const safetyMargin = 2; // Margine di sicurezza per coprire artefatti
 
   if (cartaPopup && cartaPopup.width > 1) {
-     // Espandiamo l'immagine di sfondo per coprire perfettamente l'area di ritaglio
      image(cartaPopup, 
            boxLeft - safetyMargin, 
            boxTop - safetyMargin, 
            POPUP_WIDTH + 2 * safetyMargin, 
            curH + 2 * safetyMargin);
   } else {
-     // Espandiamo il rettangolo di backup per coprire perfettamente l'area di ritaglio
      fill(255, 250);
      noStroke();
      rectMode(CORNER);
@@ -679,12 +690,10 @@ function drawPopup() {
   }
   drawingContext.restore();
   
-  // Contenuto e pulsante di chiusura
   {
     fill(textColor);
     noStroke();
     
-    // Titolo allineato a sinistra
     textAlign(LEFT, TOP); 
     textSize(64); 
     
@@ -692,10 +701,6 @@ function drawPopup() {
     let titleX = boxLeft + textMargin; 
     text(t, titleX, boxTop + 18);
 
-    
-    // *** Area Contenuto ***
-    
-    // Y di partenza fissata per tenere conto del titolo ingrandito
     const contentYStart = boxTop + 100; 
     const contentH = curH - 130; 
     
@@ -723,36 +728,28 @@ function drawPopup() {
     }
 
     textStyle(NORMAL);
-    textSize(16); // Dimensione testo descrittivo
+    textSize(16); 
     
-    // Layout Costanti
-    const Gutter = 20; // AUMENTATO PER SEPARAZIONE VERTICALE
+    const Gutter = 20; 
     const fullContentW = POPUP_WIDTH - textMargin * 2;
     
-    // Fattori di scala di default per il riempimento completo
     const BASE_SCALE = 1.0; 
     let scale1 = BASE_SCALE; 
     let scale2 = BASE_SCALE; 
 
-    // *** REGOLAZIONE SPECIFICA PER FUNGI ***
     if (regno === 'fungi') {
         scale1 = 0.75; 
         scale2 = 0.4; 
     }
     
-    // *** NUOVA REGOLAZIONE SPECIFICA PER PLANTAE ***
     if (regno === 'plantae') {
-        scale1 = 0.5625; // Ridotta ulteriormente del 25% rispetto al precedente 0.75
-        scale2 = 0.5625; // Ridotta ulteriormente del 25% rispetto al precedente 0.75
+        scale1 = 0.5625; 
+        scale2 = 0.5625; 
     }
     
-    // Layout Colonne
     const ROW_HEIGHT = (contentH - Gutter) / 2; 
-    const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; // Larghezza del contenuto testo
+    const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; 
 
-    // RIGA 1: Testo 1 (Sinistra) + Immagine 1 (Destra)
-    
-    // Testo 1 (Slot Standard a Sinistra)
     let text1X = boxLeft + textMargin;
     textAlign(LEFT, TOP);
     text(part1, 
@@ -761,21 +758,16 @@ function drawPopup() {
             COL_BASE_W, 
             ROW_HEIGHT);
             
-    // Immagine 1 (Slot a Destra, si espande per coprire il textMargin destro)
     let img1X = boxLeft + textMargin + COL_BASE_W + Gutter; 
-    let img1W = COL_BASE_W + textMargin; // Espande la larghezza a destra (FINO AL BORDO)
+    let img1W = COL_BASE_W + textMargin; 
     drawScaledImage(img1, img1X, img1W, contentYStart, ROW_HEIGHT, scale1);
 
     const row2YStart = contentYStart + ROW_HEIGHT + Gutter;
     
-    // RIGA 2: Immagine 2 (Sinistra) + Testo 2 (Destra)
-    
-    // Immagine 2 (Slot a Sinistra, si espande per coprire il textMargin sinistro)
-    let img2X = boxLeft; // Inizia dal bordo assoluto del popup
-    let img2W = COL_BASE_W + textMargin; // Espande la larghezza a sinistra (FINO AL BORDO)
+    let img2X = boxLeft; 
+    let img2W = COL_BASE_W + textMargin; 
     drawScaledImage(img2, img2X, img2W, row2YStart, ROW_HEIGHT, scale2);
 
-    // Testo 2 (Slot Standard a Destra)
     let text2X = boxLeft + img2W + Gutter;
     textAlign(LEFT, TOP);
     text(part2, 
@@ -784,7 +776,6 @@ function drawPopup() {
             COL_BASE_W, 
             ROW_HEIGHT);
 
-    // LOGICA PULSANTE DI CHIUSURA 
     const btnSize = 30;
     const btnMargin = 30;
     const closeCx = boxLeft + POPUP_WIDTH - btnMargin;

@@ -40,24 +40,3 @@
 .nav-item a:hover {
   color: #8f3b56; 
 }
-
-.bottom-decoration-container {
-  position: fixed;   /* Fisso in basso */
-  bottom: 0;
-  left: 0;
-  width: 100%;       /* Larghezza totale dello schermo */
-  
-  height: 150px;     
-
-  z-index: 2;        /* Livello sopra il canvas */
-  pointer-events: none; /* Click passano attraverso */
-
-
-  background-image: url('immagini/sfondo.png'); /* Percorso dell'immagine */
-  background-position: bottom left;    /* Allineo in basso a sinistra */
-  background-repeat: repeat-x;         /* Ripete l'immagine orizzontalmente */
-
-  /* Imposto la larghezza di ogni singola immagine al 50% del contenitore.
-     'auto' mantiene le proporzioni dell'altezza. 50% + 50% = due immagini affiancate. */
-  background-size: 10% auto;
-}

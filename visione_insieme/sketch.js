@@ -1,15 +1,7 @@
-// sketch.js
-// VERSIONE FINALE - TOTAL TEXTURE LOOK + EFFETTO ACQUERELLO PIÙ SATURO
-// - Navbar & Sfondo: 'immagini/cartagiusta.jpg' (gestito esternamente o in draw).
-// - Popup & Legenda: 'immagini/carta2.jpg' come sfondo con bordi arrotondati.
-// - Grafico: Spicchi Resi Cliccabili (Simulazione Navigazione).
-// - INTERAZIONE AGGIORNATA: Tutti i popup con layout alternato (1/3 immagine, 2/3 testo).
-
 let table;
 let areas = [];
 const kingdoms = ["animalia", "plantae", "fungi", "chromista"];
 
-// --- DATI POPUP AGGIORNATI CON DIVISIONE IN DUE PARTI ---
 const popupData = {
   animalia: {
     title: "Regno Animalia",
@@ -49,7 +41,6 @@ let maxTotal = 0;
 let cartaSfondo; 
 let cartaPopup;  
 
-// --- VARIABILI IMMAGINI (PNG) ---
 let imgAnimali1, imgAnimali2; 
 let imgPiante1, imgPiante2;
 let imgFunghi1, imgFunghi2;
@@ -64,52 +55,37 @@ const REFERENCE_3 = 10000;
 const REFERENCE_VALUES = [REFERENCE_1, REFERENCE_2, REFERENCE_3];
 
 let wheelCenterX;
+let wheelCenterY; 
 
-// STATO INTERAZIONE
 let hoveredAreaIndex = -1; 
-let clickedAreaIndex = -1; // NUOVO STATO: Indice dell'area cliccata
 let isPopupOpen = false;
 let infoIconBounds = []; 
 let currentPopupContent = null;
 
-// DIMENSIONI POPUP
-const POPUP_WIDTH = 600;  
-const POPUP_HEIGHT = 300; 
+const POPUP_WIDTH = 750;  
+const POPUP_HEIGHT = 550; 
 const MIN_POPUP_HEIGHT = 60; 
 const IMAGE_WIDTH_MAX = 200; 
 
-// ANIMAZIONI
-let animProgress = 0.0; 
-const ANIM_SPEED = 0.03;
+let animProgress = 1.0; 
+const ANIM_SPEED = 1.0; 
 let wheelProgress = 0.0; 
 const WHEEL_SPEED = 0.015;
 
 let finalGapAngle;
 let finalWedgeAngle; 
 
-// --- PARAMETRI ACQUERELLO AGGIORNATI PER MAGGIORE SATURAZIONE ---
-let noiseOffset = 0; 
-const WATERCOLOR_LAYERS = 3; 
-const WATERCOLOR_ALPHA = 70; 
-const WATERCOLOR_BLEED = 2; 
-
-
 function preload() {
-  // --- CARICAMENTO SFONDI CON NUOVO PERCORSO "immagini/" ---
-  try { cartaSfondo = loadImage('immagini/cartagiusta.jpg'); } catch(e) {}
+  // Sfondo: cartagiustissima.jpg
+  try { cartaSfondo = loadImage('immagini/cartagiustissima.jpg'); } catch(e) {}
   try { cartaPopup = loadImage('immagini/carta2.jpg'); } catch(e) {} 
   
-  // --- CARICAMENTO IMMAGINI POPUP CON NUOVO PERCORSO "immagini/" ---
-  // Animalia
   try { imgAnimali1 = loadImage('immagini/infoanimali1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infoanimali1.png"); }
   try { imgAnimali2 = loadImage('immagini/infoanimali2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infoanimali2.png"); }
-  // Plantae
   try { imgPiante1 = loadImage('immagini/infopiante1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infopiante1.png"); }
   try { imgPiante2 = loadImage('immagini/infopiante2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infopiante2.png"); }
-  // Fungi
   try { imgFunghi1 = loadImage('immagini/infofunghi1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infofunghi1.png"); }
   try { imgFunghi2 = loadImage('immagini/infofunghi2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infofunghi2.png"); }
-  // Chromista
   try { imgChromisti1 = loadImage('immagini/infocromisti1.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infocromisti1.png"); }
   try { imgChromisti2 = loadImage('immagini/infocromisti2.png'); } catch(e) { console.error("Errore nel caricamento di immagini/infocromisti2.png"); }
   
@@ -122,7 +98,6 @@ function setup() {
   angleMode(RADIANS);
   textFont("cormorant-garamond");
 
-  // Applica sfondo alla navbar se presente 
   let navbar = select('.navbar');
   if (navbar) {
     navbar.style('background-image', 'url("immagini/carta2.jpg")');
@@ -161,9 +136,10 @@ function parseData() {
 
 function computeLayout() {
   const sizeMin = min(width, height);
-  outerRadius = sizeMin * 0.35; 
+  outerRadius = sizeMin * 0.40; 
   wheelCenterX = width * 0.7; 
-
+  wheelCenterY = height * 0.45; 
+  
   const n = areas.length;
   const full = TWO_PI;
   finalGapAngle = full * 0.004;
@@ -180,11 +156,10 @@ function computeLayout() {
 
 function updateHoverState() {
   hoveredAreaIndex = -1;
-  // Non permettiamo hover se il popup è aperto
-  if (wheelProgress < 0.99 || isPopupOpen || animProgress > 0) return;
+  if (wheelProgress < 0.99 || isPopupOpen) return;
 
   const relX = mouseX - wheelCenterX;
-  const relY = mouseY - height/2;
+  const relY = mouseY - wheelCenterY; 
   const distMouse = sqrt(relX*relX + relY*relY);
   
   if (distMouse < INNER_FIXED_RADIUS || distMouse > outerRadius + 60) return;
@@ -209,14 +184,9 @@ function updateHoverState() {
       const areaMaxR = map(areas[i].total, 0, maxTotal, INNER_FIXED_RADIUS + 20, outerRadius);
       if (distMouse <= areaMaxR + 5) {
         hoveredAreaIndex = i;
-        // Cambia il cursore per indicare la cliccabilità
-        cursor(HAND); 
         return;
       }
     }
-  }
-  if (hoveredAreaIndex === -1) {
-      cursor(ARROW);
   }
 }
 
@@ -224,10 +194,12 @@ function draw() {
   if (!isPopupOpen && wheelProgress < 1.0) {
     wheelProgress = min(wheelProgress + WHEEL_SPEED, 1.0);
   }
+  
+  // Animazione disabilitata (istantanea)
   if (isPopupOpen) {
-    animProgress = min(animProgress + ANIM_SPEED, 1.0);
+    animProgress = 1.0;
   } else {
-    animProgress = max(animProgress - ANIM_SPEED, 0.0);
+    animProgress = 0.0;
   }
 
   updateHoverState();
@@ -239,22 +211,22 @@ function draw() {
   drawLegend();
 
   push(); 
-  translate(wheelCenterX, height/2); 
+  translate(wheelCenterX, wheelCenterY); 
   
   for (let i = 0; i < areas.length; i++) {
     drawAnimatedWedge(i); 
     if (wheelProgress > 0.8) drawCurvedLabel(i); 
   }
-
-  if (wheelProgress > 0.8) drawReferenceCircles();
-  pop(); 
   
-  // Il tooltip appare solo su hover, non su click
-  if (hoveredAreaIndex !== -1 && clickedAreaIndex === -1 && !isPopupOpen && animProgress <= 0) {
+  if (wheelProgress > 0.8) drawReferenceCircles(); 
+
+  pop(); 
+
+  if (hoveredAreaIndex !== -1 && !isPopupOpen && animProgress <= 0) {
     drawTooltip(hoveredAreaIndex);
   }
 
-  if (animProgress > 0) drawPopup();
+  if (isPopupOpen) drawPopup();
 }
 
 function drawAnimatedWedge(i) {
@@ -283,13 +255,11 @@ function drawAnimatedWedge(i) {
 
   if (sumVals <= 0.0001) return;
 
-  let rInner = minRadius; 
-  const isDimmed = (hoveredAreaIndex !== -1 && hoveredAreaIndex !== i) || (clickedAreaIndex !== -1 && clickedAreaIndex !== i);
-  // Aggiungi un highlight se l'area è cliccata
-  const isClicked = (clickedAreaIndex === i);
-  
   const minThicknessNeeded = relevant.length * MIN_SEGMENT_THICKNESS;
   const availRange = max(0, currentRange - minThicknessNeeded); 
+
+  let rInner = minRadius; 
+  const isDimmed = (hoveredAreaIndex !== -1 && hoveredAreaIndex !== i);
 
   for (const { k, v } of segments) {
     if (v <= 0) continue;
@@ -300,17 +270,11 @@ function drawAnimatedWedge(i) {
     let rOuter = rInner + thick;
     if (rOuter > outerLimit) rOuter = outerLimit;
 
-    // --- MODIFICA ACQUERELLO: Impostazione Alpha Aumentata ---
     let baseColor = color(palette[k]);
-    baseColor.setAlpha(230); 
+    baseColor.setAlpha(255); 
     
     let c = baseColor;
-    let dimming = 0;
-    if (isDimmed) dimming = 0.7; 
-    if (isClicked) c = color(hue(c), saturation(c), brightness(c) + 20); // Rende più chiaro
-    
-    c = lerpColor(c, color(225, 225, 220, 230), dimming);
-    // --- FINE MODIFICA ---
+    if (isDimmed) c = lerpColor(c, color(225, 225, 220, 255), 0.7); 
 
     drawRingSegment(start, currentEnd, rInner, rOuter, c);
     rInner = rOuter;
@@ -320,53 +284,43 @@ function drawAnimatedWedge(i) {
 function drawRingSegment(start, end, rIn, rOut, col) {
   if (abs(end - start) < 0.0001) return;
   
-  let layerColor = color(col);
+  let solidColor = color(col);
+  solidColor.setAlpha(255); 
   
   noStroke();
+  fill(solidColor);
+
+  const steps = 30;
+  const da = (end - start) / steps;
   
-  for (let j = 0; j < WATERCOLOR_LAYERS; j++) {
-    let currentAlpha = WATERCOLOR_ALPHA + j * 10;
-    layerColor.setAlpha(currentAlpha);
-    fill(layerColor);
-
-    let rInnerLayer = rIn - j * 0.5;
-    let rOuterLayer = rOut + j * WATERCOLOR_BLEED; 
-
-    const steps = 30 + j * 5; 
-    const da = (end - start) / steps;
-    
-    noiseOffset += 0.01; 
-    
-    beginShape();
-    
-    for (let i = 0; i <= steps; i++) {
-      let angle = start + i*da;
-      let noiseR = noise(cos(angle)*0.1 + noiseOffset, sin(angle)*0.1 + noiseOffset) * 2;
-      let r = rOuterLayer + noiseR;
-      vertex(cos(angle)*r, sin(angle)*r);
-    }
-    
-    for (let i = steps; i >= 0; i--) {
-      let angle = start + i*da;
-      vertex(cos(angle)*rInnerLayer, sin(angle)*rInnerLayer);
-    }
-    endShape(CLOSE);
+  beginShape();
+  
+  for (let i = 0; i <= steps; i++) {
+    let angle = start + i * da;
+    vertex(cos(angle) * rOut, sin(angle) * rOut);
   }
+  
+  for (let i = steps; i >= 0; i--) {
+    let angle = start + i * da;
+    vertex(cos(angle) * rIn, sin(angle) * rIn);
+  }
+  endShape(CLOSE);
 }
+
 
 function drawCurvedLabel(i) {
   const { start, end } = wedgeAngles[i];
   const label = areas[i].area;
   const textR = outerRadius + 15; 
   
-  textSize(constrain(width * 0.012, 10, 14));
+  textSize(constrain(width * 0.012, 10, 15));
   
-  if (hoveredAreaIndex === i || clickedAreaIndex === i) {
+  if (hoveredAreaIndex === i) {
       fill(0); textStyle(BOLD);
-  } else if (hoveredAreaIndex !== -1 || clickedAreaIndex !== -1) {
-      fill(180, 180, 180, 180); textStyle(NORMAL);
+  } else if (hoveredAreaIndex !== -1) {
+      fill(180, 180, 180, 180); textStyle(BOLD); 
   } else {
-      fill(textColor); textStyle(NORMAL);
+      fill(textColor); textStyle(BOLD); 
   }
 
   noStroke();
@@ -403,7 +357,7 @@ function drawCurvedLabel(i) {
     push();
     translate(x, y);
     rotate(ang + HALF_PI + angleFlip);
-    textSize(constrain(width * 0.012, 10, 14) * scaleFactor);
+    textSize(constrain(width * 0.012, 10, 15) * scaleFactor);
     text(ch, 0, 0);
     pop();
     
@@ -472,21 +426,6 @@ function drawTooltip(index) {
 }
 
 function mouseClicked() {
-  if (animProgress > 0 && animProgress < 1) return; 
-
-  // 1. GESTIONE CLICK SUI SEGMENTI DEL GRAFICO
-  if (!isPopupOpen && wheelProgress >= 1.0 && hoveredAreaIndex !== -1) {
-    const areaName = areas[hoveredAreaIndex].area;
-    clickedAreaIndex = hoveredAreaIndex; 
-    
-    // SIMULAZIONE NAVIGAZIONE: logga l'azione e l'area cliccata
-    console.log(`Navigazione simulata: Click sul segmento "${areaName}". Qui andrebbe il reindirizzamento alla pagina di dettaglio.`);
-    
-    // Potresti reindirizzare qui, ad esempio: window.location.href = `dettaglio_${areaName}.html`;
-    return;
-  }
-  
-  // 2. GESTIONE CLICK X POPUP
   if (isPopupOpen) {
     const popX = width / 2;
     const popY = height / 2;
@@ -505,14 +444,11 @@ function mouseClicked() {
     }
   }
   
-  // 3. GESTIONE CLICK ICONE LEGENDA
   if (!isPopupOpen && wheelProgress >= 1.0) {
     for (let b of infoIconBounds) {
       if (dist(mouseX, mouseY, b.x, b.y) < 15) {
         currentPopupContent = popupData[b.k];
         isPopupOpen = true;
-        clickedAreaIndex = -1; // Reset dello stato di click sul grafico se apro il popup
-        animProgress = 0;
         return;
       }
     }
@@ -525,60 +461,66 @@ function drawTitle() {
   noStroke();
   textAlign(LEFT, TOP);
   textStyle(NORMAL); 
-  const sz = constrain(width * 0.05, 30, 60); 
-  textSize(sz);
-  const startX = 60;
-  const maxWheelRadius = outerRadius + 15; 
-  let startY = height / 2 - maxWheelRadius; 
-  text("Atlante delle", startX, startY);
-  startY += sz * 1.1; 
-  text("Specie a", startX, startY);
-  startY += sz * 1.1;
-  text("Rischio", startX, startY);
+  
+  // Calcola la dimensione ATLANTE (2.5x, ridotto del 25%)
+  const sz_custom = constrain(width * 0.09375, 56, 225); 
+  
+  // Calcola la dimensione BASE (ridotta del 25%)
+  const sz_base = constrain(width * 0.03375, 22.5, 81); 
+  
+  const startX = 60; 
+  let startY = 20; 
+  
+  // --- Riga 1: Atlante (Dimensione 2.5x, ridotta) ---
+  textSize(sz_custom);
+  text("Atlante", startX, startY);
+  startY += sz_custom * 1.0; 
+  
+  // --- Riga 2: delle Specie a Rischio (Dimensione ridotta) ---
+  textSize(sz_base);
+  text("delle Specie a Rischio", startX, startY);
   pop();
 }
 
-// --- LEGENDA CON TEXTURE ---
 function drawLegend() {
   push();
   textStyle(NORMAL); 
   if (wheelProgress >= 1.0) infoIconBounds = []; 
 
   const sz = constrain(width * 0.05, 30, 60); 
-  const wheelTop = (height/2) - (outerRadius + 15);
-  let sy = max(30, wheelTop);
-  const titleH = sz * 3.3; 
-  
   const legendX = 60; 
-  let currentY = sy + titleH + 40; 
+  
+  // Calcolo per posizionare la legenda sotto il titolo ingrandito (aggiornato)
+  const title_sz_custom = constrain(width * 0.09375, 56, 225);
+  const title_sz_base = constrain(width * 0.03375, 22.5, 81); 
+  
+  // Calcolo della posizione Y della legenda basato sul nuovo margine (20)
+  let currentY = 20 + title_sz_custom * 1.0 + title_sz_base * 1.0 + 40; 
 
   const rowH = 30;
   const legendWidth = 220; 
   const legendHeight = rowH * (kingdoms.length + 1) + 30;
 
-  // Calcolo box per texture
   const lx = legendX - 15;
   const ly = currentY - 15;
   const lw = legendWidth;
   const lh = legendHeight;
 
-  // Disegno Sfondo Legenda con Texture e Ritaglio
   push();
   drawingContext.save();
   drawingContext.beginPath();
-  // Rettangolo arrotondato standard
-  const r = 8;
-  drawingContext.moveTo(lx + r, ly);
-  drawingContext.arcTo(lx + lw, ly, lx + lw, ly + lh, r);
-  drawingContext.arcTo(lx + lw, ly + lh, lx, ly + lh, r);
-  drawingContext.arcTo(lx, ly + lh, lx, ly, r);
-  drawingContext.arcTo(lx, ly, lx + lw, ly, r);
+  const r = 10;
+  const x = lx, y = ly, w = lw, h = lh;
+  drawingContext.moveTo(x + r, y);
+  drawingContext.arcTo(x + w, y, x + w, y + h, r);
+  drawingContext.arcTo(x + w, y + h, x, y + h, r);
+  drawingContext.arcTo(x, y + h, x, y, r);
+  drawingContext.arcTo(x, y, x + w, y, r);
   drawingContext.closePath();
   drawingContext.clip();
 
   if (cartaPopup && cartaPopup.width > 1) {
      image(cartaPopup, lx, ly, lw, lh);
-     // Velo bianco per leggibilità
      fill(255, 180); 
      noStroke();
      rect(lx, ly, lw, lh);
@@ -590,7 +532,6 @@ function drawLegend() {
   drawingContext.restore();
   pop();
   
-  // Contenuto Legenda
   textSize(18); 
   textAlign(LEFT, CENTER);
   fill(textColor);
@@ -600,7 +541,6 @@ function drawLegend() {
   currentY += rowH;
 
   kingdoms.forEach(k => { 
-    // MODIFICA: Uso del cerchio per la legenda per coerenza con l'effetto (o un piccolo quadrato)
     fill(palette[k]);
     rect(legendX, currentY - 9, 18, 18, 4); 
     fill(textColor);
@@ -650,39 +590,62 @@ function drawReferenceCircles() {
         drawingContext.setLineDash([4, 4]); 
         circle(0, 0, r * 2);
         drawingContext.setLineDash([]); 
+        
         fill(textColor); 
         noStroke(); 
         textSize(10);
         textAlign(LEFT, CENTER);
-        text(val, r + 5, 0);
+        text(val, r + 5, 0); 
     }
   }
   pop();
 }
 
+/**
+ * Funzione helper per disegnare immagini con strategia "COVER" (riempimento completo dello slot).
+ * Usa max() per calcolare lo scaling e ri-introduce il centramento per visualizzare la porzione centrale.
+ */
+function drawScaledImage(img, slotX, slotW, slotY, slotH, scaleMultiplier) {
+     if (img) {
+        // Calcola fattore di scala naturale per riempire completamente lo slot (strategia COVER)
+        let naturalScale = max(slotW / img.width, slotH / img.height);
+        
+        // Applica il moltiplicatore richiesto (1.0x in questa versione)
+        const scaleFactor = naturalScale * scaleMultiplier;
+        
+        const w = img.width * scaleFactor;
+        const h = img.height * scaleFactor;
+
+        // Centra l'immagine all'interno dello slot, garantendo che i bordi dello slot
+        // siano coperti (anche se parte dell'immagine finisce fuori dallo slot).
+        let drawX = slotX + (slotW - w) / 2;
+        let drawY = slotY + (slotH - h) / 2;
+        
+        image(img, 
+              drawX, 
+              drawY, 
+              w, 
+              h); 
+     }
+}
+
 function drawPopup() {
-  fill(0, 100 * animProgress); 
+  if (!isPopupOpen) return; 
+  
+  fill(0, 100); 
   noStroke();
   rect(0, 0, width, height);
 
   const popX = width / 2;
   const popY = height / 2;
   
-  let curH;
-  if (animProgress < 0.3) {
-    curH = MIN_POPUP_HEIGHT;
-  } else {
-    let expandP = map(animProgress, 0.3, 1.0, 0, 1);
-    curH = map(expandP, 0, 1, MIN_POPUP_HEIGHT, POPUP_HEIGHT);
-  }
+  const curH = POPUP_HEIGHT; 
 
-  // Dimensioni e posizioni del popup
   const boxLeft = popX - POPUP_WIDTH / 2;
   const boxTop = popY - curH / 2;
-  const textMargin = 30;
+  const textMargin = 30; // Margine interno standard
 
   push();
-  // Clipping
   drawingContext.save();
   drawingContext.beginPath();
   const r = 10;
@@ -695,148 +658,171 @@ function drawPopup() {
   drawingContext.closePath();
   drawingContext.clip();
 
+  const safetyMargin = 2; // Margine di sicurezza per coprire artefatti
+
   if (cartaPopup && cartaPopup.width > 1) {
-     image(cartaPopup, boxLeft, boxTop, POPUP_WIDTH, curH);
+     // MODIFICA: Espandiamo l'immagine di sfondo per coprire perfettamente l'area di ritaglio
+     image(cartaPopup, 
+           boxLeft - safetyMargin, 
+           boxTop - safetyMargin, 
+           POPUP_WIDTH + 2 * safetyMargin, 
+           curH + 2 * safetyMargin);
   } else {
+     // MODIFICA: Espandiamo il rettangolo di backup per coprire perfettamente l'area di ritaglio
      fill(255, 250);
      noStroke();
      rectMode(CORNER);
-     rect(boxLeft, boxTop, POPUP_WIDTH, curH);
+     rect(boxLeft - safetyMargin, 
+          boxTop - safetyMargin, 
+          POPUP_WIDTH + 2 * safetyMargin, 
+          curH + 2 * safetyMargin);
   }
   drawingContext.restore();
-
-  noFill();
-  stroke(textColor);
-  strokeWeight(1);
-  rectMode(CORNER);
-  rect(boxLeft, boxTop, POPUP_WIDTH, curH, 10);
-
-  if (curH >= MIN_POPUP_HEIGHT) {
+  
+  // Contenuto e pulsante di chiusura
+  {
     fill(textColor);
     noStroke();
-    textAlign(CENTER, TOP);
-    textStyle(BOLD);
-    textSize(22);
+    
+    // Titolo allineato a sinistra
+    textAlign(LEFT, TOP); 
+    textSize(64); 
     
     let t = currentPopupContent ? currentPopupContent.title : "Info";
-    text(t, popX, boxTop + 18);
+    let titleX = boxLeft + textMargin; 
+    text(t, titleX, boxTop + 18);
 
-    if (animProgress >= 0.99) {
-      
-      const contentYStart = boxTop + 70;
-      const contentH = curH - 80;
-      
-      const regno = currentPopupContent ? currentPopupContent.title.replace("Regno ", "").toLowerCase() : '';
-      let img1, img2, part1, part2;
+    
+    // *** Area Contenuto ***
+    
+    // Y di partenza fissata per tenere conto del titolo ingrandito
+    const contentYStart = boxTop + 100; 
+    const contentH = curH - 130; 
+    
+    const regno = currentPopupContent ? currentPopupContent.title.replace("Regno ", "").toLowerCase() : '';
+    let img1, img2, part1, part2;
 
-      // Mappatura dinamica dei contenuti (immagini e testo)
-      if (regno === 'animalia') {
-          img1 = imgAnimali1; img2 = imgAnimali2;
-          part1 = popupData.animalia.description_part1;
-          part2 = popupData.animalia.description_part2;
-      } else if (regno === 'plantae') {
-          img1 = imgPiante1; img2 = imgPiante2;
-          part1 = popupData.plantae.description_part1;
-          part2 = popupData.plantae.description_part2;
-      } else if (regno === 'fungi') {
-          img1 = imgFunghi1; img2 = imgFunghi2;
-          part1 = popupData.fungi.description_part1;
-          part2 = popupData.fungi.description_part2;
-      } else if (regno === 'chromista') {
-          img1 = imgChromisti1; img2 = imgChromisti2;
-          part1 = popupData.chromista.description_part1;
-          part2 = popupData.chromista.description_part2;
-      }
+    if (regno === 'animalia') {
+        img1 = imgAnimali2; 
+        img2 = imgAnimali1; 
+        part1 = popupData.animalia.description_part1;
+        part2 = popupData.animalia.description_part2;
+    } else if (regno === 'plantae') {
+        img1 = imgPiante1; img2 = imgPiante2;
+        part1 = popupData.plantae.description_part1;
+        part2 = popupData.plantae.description_part2;
+    } else if (regno === 'fungi') {
+        img1 = imgFunghi2; 
+        img2 = imgFunghi1; 
+        part1 = popupData.fungi.description_part1;
+        part2 = popupData.fungi.description_part2;
+    } else if (regno === 'chromista') {
+        img1 = imgChromisti1; img2 = imgChromisti2;
+        part1 = popupData.chromista.description_part1;
+        part2 = popupData.chromista.description_part2;
+    }
 
-      textStyle(NORMAL);
-      textSize(16);
-      
-      // Controlla se il regno corrente usa il layout 1/3 - 2/3 (cioè se ha le parti di descrizione separate)
-      if (part1 && part2) {
+    textStyle(NORMAL);
+    textSize(16); // Dimensione testo descrittivo
+    
+    // Layout Costanti
+    const Gutter = 5;
+    const fullContentW = POPUP_WIDTH - textMargin * 2;
+    
+    // Fattore di scala 1.0 per il riempimento completo
+    const IMAGE_SCALE_FACTOR_MULTIPLIER = 1.0; 
+
+    if (regno === 'plantae') {
+        // --- LAYOUT SPECIFICO PER PLANTAE ---
         
-        // --- CALCOLO GRIGLIA 1/3 - 2/3 ---
-        const ROW_HEIGHT = (contentH - 5) / 2; // Due righe di contenuto con piccolo spazio
-        const COL_W_THIRD = (POPUP_WIDTH - textMargin * 2) / 3;
-        const COL_W_TWOTHIRDS = COL_W_THIRD * 2;
-        const Gutter = 5; // Spazio tra immagine e testo
+        const TEXT_ROW_H = contentH * 0.6;
+        const IMAGE_ROW_H = contentH * 0.4 - Gutter; 
+        const combinedText = part1 + " " + part2;
         
-        // --- RIGA 1: Immagine 1 (1/3 Sinistra) + Paragrafo 1 (2/3 Destra) ---
+        // RIGA 1: Combined Text (Full Width)
+        let textX = boxLeft + textMargin;
+        textAlign(LEFT, TOP);
+        text(combinedText, 
+             textX, 
+             contentYStart, 
+             fullContentW, 
+             TEXT_ROW_H);
+             
+        const row2YStart = contentYStart + TEXT_ROW_H + Gutter;
         
-        // 1A. Disegna Immagine 1 (Sinistra)
-        if (img1) {
-            const scaleFactor = min((COL_W_THIRD - Gutter) / img1.width, (ROW_HEIGHT - Gutter) / img1.height);
-            const w = img1.width * scaleFactor;
-            const h = img1.height * scaleFactor;
-            
-            image(img1, 
-                  boxLeft + textMargin + (COL_W_THIRD - w) / 2, // Centrata nello slot 1/3
-                  contentYStart + (ROW_HEIGHT - h) / 2,         // Centrata in verticale
-                  w, 
-                  h);
-        }
+        const TEXT_SPACE_W = POPUP_WIDTH - 2 * textMargin;
+        const COL_BASE_W = (TEXT_SPACE_W - Gutter) / 2; 
+
+        // RIGA 2 PLANTAE: Immagine 1 tocca il bordo sinistro, Immagine 2 tocca il bordo destro.
         
-        // 1B. Disegna Testo 1 (Destra)
-        let text1X = boxLeft + textMargin + COL_W_THIRD + Gutter;
+        // Immagine 1 (A sinistra, deve coprire il margin a sinistra)
+        let imgPlantae1X = boxLeft; // Inizia dal bordo assoluto del popup
+        let imgPlantae1W = COL_BASE_W + textMargin; // Allarga per coprire il margine a sinistra
+        drawScaledImage(img1, imgPlantae1X, imgPlantae1W, row2YStart, IMAGE_ROW_H, IMAGE_SCALE_FACTOR_MULTIPLIER);
+
+        // Immagine 2 (A destra, deve coprire il margin a destra)
+        let imgPlantae2X = boxLeft + imgPlantae1W + Gutter;
+        let imgPlantae2W = COL_BASE_W + textMargin; // Allarga per coprire il margine a destra
+        drawScaledImage(img2, imgPlantae2X, imgPlantae2W, row2YStart, IMAGE_ROW_H, IMAGE_SCALE_FACTOR_MULTIPLIER);
+
+
+        
+    } else {
+        // --- LOGICA ESISTENTE 2x2 per Animalia, Fungi, Chromista ---
+        
+        // Layout Colonne
+        const ROW_HEIGHT = (contentH - Gutter) / 2; 
+        const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; // Larghezza del contenuto testo
+
+        // RIGA 1: Testo 1 (Sinistra) + Immagine 1 (Destra)
+        
+        // Testo 1 (Slot Standard a Sinistra)
+        let text1X = boxLeft + textMargin;
         textAlign(LEFT, TOP);
         text(part1, 
              text1X, 
              contentYStart, 
-             COL_W_TWOTHIRDS - Gutter, // Larghezza del testo
+             COL_BASE_W, 
              ROW_HEIGHT);
              
-        // --- RIGA 2: Paragrafo 2 (2/3 Sinistra) + Immagine 2 (1/3 Destra) ---
-        
+        // Immagine 1 (Slot a Destra, si espande per coprire il textMargin destro)
+        let img1X = boxLeft + textMargin + COL_BASE_W + Gutter; 
+        let img1W = COL_BASE_W + textMargin; // Espande la larghezza a destra
+        drawScaledImage(img1, img1X, img1W, contentYStart, ROW_HEIGHT, IMAGE_SCALE_FACTOR_MULTIPLIER);
+
         const row2YStart = contentYStart + ROW_HEIGHT + Gutter;
         
-        // 2A. Disegna Testo 2 (Sinistra)
-        let text2X = boxLeft + textMargin;
+        // RIGA 2: Immagine 2 (Sinistra) + Testo 2 (Destra)
+        
+        // Immagine 2 (Slot a Sinistra, si espande per coprire il textMargin sinistro)
+        let img2X = boxLeft; // Inizia dal bordo assoluto del popup
+        let img2W = COL_BASE_W + textMargin; // Espande la larghezza a sinistra
+        drawScaledImage(img2, img2X, img2W, row2YStart, ROW_HEIGHT, IMAGE_SCALE_FACTOR_MULTIPLIER);
+
+        // Testo 2 (Slot Standard a Destra)
+        let text2X = boxLeft + img2W + Gutter;
         textAlign(LEFT, TOP);
         text(part2, 
              text2X, 
              row2YStart, 
-             COL_W_TWOTHIRDS - Gutter, // Larghezza del testo
+             COL_BASE_W, 
              ROW_HEIGHT);
+    } 
 
-        // 2B. Disegna Immagine 2 (Destra)
-        if (img2) {
-            const scaleFactor = min((COL_W_THIRD - Gutter) / img2.width, (ROW_HEIGHT - Gutter) / img2.height);
-            const w = img2.width * scaleFactor;
-            const h = img2.height * scaleFactor;
-            
-            let img2X = boxLeft + textMargin + COL_W_TWOTHIRDS + Gutter;
-
-            image(img2, 
-                  img2X + (COL_W_THIRD - w) / 2, // Centrata nello slot 1/3
-                  row2YStart + (ROW_HEIGHT - h) / 2, // Centrata in verticale
-                  w, 
-                  h);
-        }
-
-      } else if (currentPopupContent.description) {
-        // Logica di fallback (regni con descrizione singola)
-        textAlign(LEFT, TOP);
-        text(currentPopupContent.description, 
-             boxLeft + textMargin, 
-             contentYStart, 
-             POPUP_WIDTH - textMargin*2, 
-             contentH);
-      }
-      
-      // --- Bottone Chiudi ---
-      const btnSize = 30;
-      const btnMargin = 30;
-      const closeCx = boxLeft + POPUP_WIDTH - btnMargin;
-      const closeCy = boxTop + btnMargin;
-      
-      rectMode(CENTER);
-      stroke(textColor);
-      strokeWeight(1.5);
-      noFill();
-      rect(closeCx, closeCy, btnSize, btnSize, 5);
-      strokeWeight(2);
-      line(closeCx - 6, closeCy - 6, closeCx + 6, closeCy + 6);
-      line(closeCx + 6, closeCy - 6, closeCx - 6, closeCy + 6);
-    }
+    // LOGICA PULSANTE DI CHIUSURA 
+    const btnSize = 30;
+    const btnMargin = 30;
+    const closeCx = boxLeft + POPUP_WIDTH - btnMargin;
+    const closeCy = popY - POPUP_HEIGHT / 2 + btnMargin;
+    
+    rectMode(CENTER);
+    stroke(textColor);
+    strokeWeight(1.5);
+    noFill();
+    rect(closeCx, closeCy, btnSize, btnSize, 5);
+    strokeWeight(2);
+    line(closeCx - 6, closeCy - 6, closeCx + 6, closeCy + 6);
+    line(closeCx + 6, closeCy - 6, closeCx - 6, closeCy + 6);
   }
   pop();
 }

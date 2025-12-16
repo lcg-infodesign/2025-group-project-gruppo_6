@@ -61,7 +61,6 @@ let hoveredAreaIndex = -1;
 let isPopupOpen = false;
 let infoIconBounds = []; 
 let currentPopupContent = null;
-// Variabile per tracciare se il mouse è sopra un elemento cliccabile
 let isMouseOverClickable = false;
 
 const POPUP_WIDTH = 750;  
@@ -149,9 +148,8 @@ function computeLayout() {
 
 function updateHoverState() {
   hoveredAreaIndex = -1;
-  isMouseOverClickable = false; // Reset dello stato click ogni frame
+  isMouseOverClickable = false; 
 
-  // 1. Controllo PULSANTE DI CHIUSURA se il popup è aperto
   if (isPopupOpen) {
     const popX = width / 2;
     const popY = height / 2;
@@ -165,22 +163,17 @@ function updateHoverState() {
     if (dist(mouseX, mouseY, closeBtnX, closeBtnY) < btnSize) {
       isMouseOverClickable = true;
     }
-    return; // Se il popup è aperto, non controlliamo altro
+    return; 
   }
 
-  // Se l'animazione non è finita, usciamo
   if (wheelProgress < 0.99) return;
 
-  // 2. Controllo ICONE INFO (Legend)
   for (let b of infoIconBounds) {
     if (dist(mouseX, mouseY, b.x, b.y) < 15) {
       isMouseOverClickable = true;
-      // Non facciamo return qui perché potremmo volere l'hover anche sugli spicchi 
-      // (anche se le icone sono in un'altra zona)
     }
   }
 
-  // 3. Controllo SPICCHI DEL GRAFICO
   const relX = mouseX - wheelCenterX;
   const relY = mouseY - wheelCenterY; 
   const distMouse = sqrt(relX*relX + relY*relY);
@@ -207,7 +200,7 @@ function updateHoverState() {
       const areaMaxR = map(areas[i].total, 0, maxTotal, INNER_FIXED_RADIUS + 20, outerRadius);
       if (distMouse <= areaMaxR + 5) {
         hoveredAreaIndex = i;
-        isMouseOverClickable = true; // È uno spicchio cliccabile
+        isMouseOverClickable = true; 
         return;
       }
     }
@@ -227,11 +220,10 @@ function draw() {
 
   updateHoverState();
 
-  // *** GESTIONE CURSORE ***
   if (isMouseOverClickable) {
-    cursor(HAND); // Manina
+    cursor(HAND); 
   } else {
-    cursor(ARROW); // Freccia normale
+    cursor(ARROW); 
   }
 
   if (cartaSfondo) image(cartaSfondo, 0, 0, width, height);
@@ -498,6 +490,7 @@ function drawTitle() {
   textAlign(LEFT, TOP);
   textStyle(NORMAL); 
   
+  // Font Sizes
   const sz_custom = constrain(width * 0.09375, 56, 225); 
   const sz_base = constrain(width * 0.03375, 22.5, 81); 
   
@@ -518,23 +511,36 @@ function drawLegend() {
   textStyle(NORMAL); 
   if (wheelProgress >= 1.0) infoIconBounds = []; 
 
-  const sz = constrain(width * 0.05, 30, 60); 
   const legendX = 60; 
   
-  const title_sz_custom = constrain(width * 0.09375, 56, 225);
-  const title_sz_base = constrain(width * 0.03375, 22.5, 81); 
+  // *** CALCOLO DIMENSIONI TITOLO PER ALLINEAMENTO ***
+  const sz_custom = constrain(width * 0.09375, 56, 225); 
+  const sz_base = constrain(width * 0.03375, 22.5, 81); 
   
-  let currentY = 20 + title_sz_custom * 1.0 + title_sz_base * 1.0 + 40; 
+  // Misura la larghezza esatta dei due testi del titolo
+  textSize(sz_custom);
+  let w1 = textWidth("Atlante");
+  textSize(sz_base);
+  let w2 = textWidth("delle Specie a Rischio");
+  
+  // La larghezza base della legenda è uguale alla riga più lunga del titolo
+  let baseLegendWidth = max(w1, w2);
+  
+  // Aggiungi padding laterale (15px a sx e 15px a dx del box)
+  // Il testo inizia a legendX, il box inizia a legendX - 15.
+  // Quindi larghezza totale box = baseLegendWidth + 30
+  
+  let currentY = 20 + sz_custom * 1.0 + sz_base * 1.0 + 40; 
 
   const rowH = 30;
-  const legendWidth = 220; 
   const legendHeight = rowH * (kingdoms.length + 1) + 30;
 
   const lx = legendX - 15;
   const ly = currentY - 15;
-  const lw = legendWidth;
+  const lw = baseLegendWidth + 30; // Larghezza dinamica allineata al titolo
   const lh = legendHeight;
 
+  // Disegno Sfondo Legenda
   push();
   drawingContext.save();
   drawingContext.beginPath();
@@ -561,6 +567,7 @@ function drawLegend() {
   drawingContext.restore();
   pop();
   
+  // Contenuto Legenda
   textSize(18); 
   textAlign(LEFT, CENTER);
   fill(textColor);

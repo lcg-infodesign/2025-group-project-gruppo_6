@@ -661,14 +661,14 @@ function drawPopup() {
   const safetyMargin = 2; // Margine di sicurezza per coprire artefatti
 
   if (cartaPopup && cartaPopup.width > 1) {
-     // MODIFICA: Espandiamo l'immagine di sfondo per coprire perfettamente l'area di ritaglio
+     // Espandiamo l'immagine di sfondo per coprire perfettamente l'area di ritaglio
      image(cartaPopup, 
            boxLeft - safetyMargin, 
            boxTop - safetyMargin, 
            POPUP_WIDTH + 2 * safetyMargin, 
            curH + 2 * safetyMargin);
   } else {
-     // MODIFICA: Espandiamo il rettangolo di backup per coprire perfettamente l'area di ritaglio
+     // Espandiamo il rettangolo di backup per coprire perfettamente l'area di ritaglio
      fill(255, 250);
      noStroke();
      rectMode(CORNER);
@@ -726,88 +726,63 @@ function drawPopup() {
     textSize(16); // Dimensione testo descrittivo
     
     // Layout Costanti
-    const Gutter = 5;
+    const Gutter = 20; // AUMENTATO PER SEPARAZIONE VERTICALE
     const fullContentW = POPUP_WIDTH - textMargin * 2;
     
-    // Fattore di scala 1.0 per il riempimento completo
-    const IMAGE_SCALE_FACTOR_MULTIPLIER = 1.0; 
+    // Fattori di scala di default per il riempimento completo
+    const BASE_SCALE = 1.0; 
+    let scale1 = BASE_SCALE; 
+    let scale2 = BASE_SCALE; 
 
+    // *** REGOLAZIONE SPECIFICA PER FUNGI ***
+    if (regno === 'fungi') {
+        scale1 = 0.75; 
+        scale2 = 0.4; 
+    }
+    
+    // *** NUOVA REGOLAZIONE SPECIFICA PER PLANTAE ***
     if (regno === 'plantae') {
-        // --- LAYOUT SPECIFICO PER PLANTAE ---
-        
-        const TEXT_ROW_H = contentH * 0.6;
-        const IMAGE_ROW_H = contentH * 0.4 - Gutter; 
-        const combinedText = part1 + " " + part2;
-        
-        // RIGA 1: Combined Text (Full Width)
-        let textX = boxLeft + textMargin;
-        textAlign(LEFT, TOP);
-        text(combinedText, 
-             textX, 
-             contentYStart, 
-             fullContentW, 
-             TEXT_ROW_H);
-             
-        const row2YStart = contentYStart + TEXT_ROW_H + Gutter;
-        
-        const TEXT_SPACE_W = POPUP_WIDTH - 2 * textMargin;
-        const COL_BASE_W = (TEXT_SPACE_W - Gutter) / 2; 
+        scale1 = 0.5625; // Ridotta ulteriormente del 25% rispetto al precedente 0.75
+        scale2 = 0.5625; // Ridotta ulteriormente del 25% rispetto al precedente 0.75
+    }
+    
+    // Layout Colonne
+    const ROW_HEIGHT = (contentH - Gutter) / 2; 
+    const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; // Larghezza del contenuto testo
 
-        // RIGA 2 PLANTAE: Immagine 1 tocca il bordo sinistro, Immagine 2 tocca il bordo destro.
-        
-        // Immagine 1 (A sinistra, deve coprire il margin a sinistra)
-        let imgPlantae1X = boxLeft; // Inizia dal bordo assoluto del popup
-        let imgPlantae1W = COL_BASE_W + textMargin; // Allarga per coprire il margine a sinistra
-        drawScaledImage(img1, imgPlantae1X, imgPlantae1W, row2YStart, IMAGE_ROW_H, IMAGE_SCALE_FACTOR_MULTIPLIER);
+    // RIGA 1: Testo 1 (Sinistra) + Immagine 1 (Destra)
+    
+    // Testo 1 (Slot Standard a Sinistra)
+    let text1X = boxLeft + textMargin;
+    textAlign(LEFT, TOP);
+    text(part1, 
+            text1X, 
+            contentYStart, 
+            COL_BASE_W, 
+            ROW_HEIGHT);
+            
+    // Immagine 1 (Slot a Destra, si espande per coprire il textMargin destro)
+    let img1X = boxLeft + textMargin + COL_BASE_W + Gutter; 
+    let img1W = COL_BASE_W + textMargin; // Espande la larghezza a destra (FINO AL BORDO)
+    drawScaledImage(img1, img1X, img1W, contentYStart, ROW_HEIGHT, scale1);
 
-        // Immagine 2 (A destra, deve coprire il margin a destra)
-        let imgPlantae2X = boxLeft + imgPlantae1W + Gutter;
-        let imgPlantae2W = COL_BASE_W + textMargin; // Allarga per coprire il margine a destra
-        drawScaledImage(img2, imgPlantae2X, imgPlantae2W, row2YStart, IMAGE_ROW_H, IMAGE_SCALE_FACTOR_MULTIPLIER);
+    const row2YStart = contentYStart + ROW_HEIGHT + Gutter;
+    
+    // RIGA 2: Immagine 2 (Sinistra) + Testo 2 (Destra)
+    
+    // Immagine 2 (Slot a Sinistra, si espande per coprire il textMargin sinistro)
+    let img2X = boxLeft; // Inizia dal bordo assoluto del popup
+    let img2W = COL_BASE_W + textMargin; // Espande la larghezza a sinistra (FINO AL BORDO)
+    drawScaledImage(img2, img2X, img2W, row2YStart, ROW_HEIGHT, scale2);
 
-
-        
-    } else {
-        // --- LOGICA ESISTENTE 2x2 per Animalia, Fungi, Chromista ---
-        
-        // Layout Colonne
-        const ROW_HEIGHT = (contentH - Gutter) / 2; 
-        const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; // Larghezza del contenuto testo
-
-        // RIGA 1: Testo 1 (Sinistra) + Immagine 1 (Destra)
-        
-        // Testo 1 (Slot Standard a Sinistra)
-        let text1X = boxLeft + textMargin;
-        textAlign(LEFT, TOP);
-        text(part1, 
-             text1X, 
-             contentYStart, 
-             COL_BASE_W, 
-             ROW_HEIGHT);
-             
-        // Immagine 1 (Slot a Destra, si espande per coprire il textMargin destro)
-        let img1X = boxLeft + textMargin + COL_BASE_W + Gutter; 
-        let img1W = COL_BASE_W + textMargin; // Espande la larghezza a destra
-        drawScaledImage(img1, img1X, img1W, contentYStart, ROW_HEIGHT, IMAGE_SCALE_FACTOR_MULTIPLIER);
-
-        const row2YStart = contentYStart + ROW_HEIGHT + Gutter;
-        
-        // RIGA 2: Immagine 2 (Sinistra) + Testo 2 (Destra)
-        
-        // Immagine 2 (Slot a Sinistra, si espande per coprire il textMargin sinistro)
-        let img2X = boxLeft; // Inizia dal bordo assoluto del popup
-        let img2W = COL_BASE_W + textMargin; // Espande la larghezza a sinistra
-        drawScaledImage(img2, img2X, img2W, row2YStart, ROW_HEIGHT, IMAGE_SCALE_FACTOR_MULTIPLIER);
-
-        // Testo 2 (Slot Standard a Destra)
-        let text2X = boxLeft + img2W + Gutter;
-        textAlign(LEFT, TOP);
-        text(part2, 
-             text2X, 
-             row2YStart, 
-             COL_BASE_W, 
-             ROW_HEIGHT);
-    } 
+    // Testo 2 (Slot Standard a Destra)
+    let text2X = boxLeft + img2W + Gutter;
+    textAlign(LEFT, TOP);
+    text(part2, 
+            text2X, 
+            row2YStart, 
+            COL_BASE_W, 
+            ROW_HEIGHT);
 
     // LOGICA PULSANTE DI CHIUSURA 
     const btnSize = 30;

@@ -376,13 +376,13 @@ function drawHeader() {
   fill(TEXT_COLOR);
 
   const x = width * 0.63;
-  const y = sz * 1.2;
+  const y = sz * 1.5;
 
   textAlign(LEFT, TOP);
   textSize(sz);
   text("Cause di rischio", x, y);
 
-  const titoloY2 = y + sz * 1.2;
+  const titoloY2 = y + sz * 0.8;
   textSize(sz);
   text("estinzione in", x, titoloY2);
 
@@ -570,11 +570,14 @@ function drawKingdomFlowers(activeCause) {
       noStroke();
       fill(TEXT_COLOR);
       textAlign(CENTER, TOP);
+      textFont("cormorant-garamond");
       textSize(26);
+      textStyle(BOLD);
       text(regno, 0, -cardH / 2 + 12);
 
       textSize(18);
       textAlign(CENTER, CENTER);
+      textStyle(NORMAL);
       text(
         "Non è stata ancora analizzata\nnessuna specie a rischio\nin quest'area geografica",
         0,
@@ -670,8 +673,9 @@ function drawKingdomFlowers(activeCause) {
     
     noStroke();
     fill(TEXT_COLOR);
-    textFont(customFont);
+    textFont("cormorant-garamond");
     textSize(18);
+    textStyle(BOLD)
     textAlign(CENTER, CENTER);
     text(regno, labelX + bw / 2, labelY + bh / 2);
 

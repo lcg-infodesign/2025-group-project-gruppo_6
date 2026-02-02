@@ -17,11 +17,11 @@ let isCountdownAnimating = false;
 let isPhraseTwoDisplayed = true; 
 let animationComplete = false;
 
-// NUOVI: Variabili per la transizione di colore dei pallini
+// Variabili per la transizione di colore dei pallini
 let isColorTransitioning = false;
 let colorTransitionStartTime;
-const COLOR_TRANSITION_DURATION_MS = 1500; // Sincronizzato con il cross-fade CSS (1.5s)
-const R_FINAL_PALLINI = 176; // #cbbeb6ff (Più chiaro del testo finale #1c1a1a)
+const COLOR_TRANSITION_DURATION_MS = 1500;
+const R_FINAL_PALLINI = 176;
 const G_FINAL_PALLINI = 165; 
 const B_FINAL_PALLINI = 141; 
 
@@ -31,6 +31,7 @@ let backgroundElement;
 let arrowNext;
 let arrowPrev;
 let textOverlay;
+let skipButton;
 
 // Frasi visualizzate
 const frasi = [
@@ -50,12 +51,10 @@ let indiceFrase = 0;
 // --------------------------------------------------------------------------------
 
 function preload() {
-    // Assicurati che 'data_main.csv' sia nella stessa cartella
     table = loadTable('data_main.csv', 'csv', 'header');
 }
 
 function powerEasing(t) {
-    // Curva di accelerazione usata per l'animazione
     return t * t * t * t * t; 
 }
 
@@ -69,7 +68,6 @@ function setup() {
     
     NUM_SPECIE_FINALI = NUM_SPECIE_INIZIALI - NUM_SPECIE_MINACCIATE;
     
-    // Aggiorna la frase 1 con il numero iniziale
     frasi[1] = `<div class='content-block'><span id='descriptive-text'>Tra queste, finora è stato possibile<br>studiarne e catalogarne</span><div id='animated-number'>${NUM_SPECIE_INIZIALI.toLocaleString('it-IT')}</div></div>`;
     
     const canvas = createCanvas(windowWidth, windowHeight);
@@ -77,13 +75,12 @@ function setup() {
     canvas.position(0, 0); 
     canvas.elt.style.display = 'none'; 
     
-    // Calcolo del numero di pallini (Particelle) da disegnare
     const areaSchermo = windowWidth * windowHeight;
     const percentuale = 0.1983;
-    const areaTotalePallini = areaSchermo * percentuale;
+    const areaTotalePALLINI = areaSchermo * percentuale;
     const raggioBaseDensita = 4; 
     const areaSingoloBase = Math.PI * raggioBaseDensita * raggioBaseDensita;
-    const numBase = Math.floor(areaTotalePallini / areaSingoloBase);
+    const numBase = Math.floor(areaTotalePALLINI / areaSingoloBase);
     NUM_PALLINI_A_RISCHIO = Math.floor(numBase / 2);
 }
 
@@ -113,7 +110,6 @@ function draw() {
         if (animationComplete && specieMinacciateApparse.length === NUM_PALLINI_A_RISCHIO) {
               const numSpan = h1Element.querySelector('#animated-number');
               if (numSpan) {
-                  // Imposta il valore finale (specie rimanenti)
                   numSpan.innerHTML = NUM_SPECIE_FINALI.toLocaleString('it-IT');
               }
               arrowNext.classList.add('visible');
@@ -122,7 +118,6 @@ function draw() {
         if (h1Element) {
             const numSpan = h1Element.querySelector('#animated-number');
             if (numSpan) {
-                // Calcola il numero in tempo reale (da NUM_SPECIE_INIZIALI a NUM_SPECIE_FINALI)
                 const currentDisplayedCount = NUM_SPECIE_INIZIALI - Math.round(NUM_SPECIE_MINACCIATE * (specieMinacciateApparse.length / NUM_PALLINI_A_RISCHIO));
                 
                 if (currentDisplayedCount >= NUM_SPECIE_FINALI) {
@@ -147,7 +142,6 @@ function windowResized() {
 
 function aggiungiSpecieMinacciata() {
     const raggio = RAGGIO_PALLINO;
-    // Zona di sicurezza centrale (ellisse)
     const SAFETY_ZONE_WIDTH = width * 0.40; 
     const SAFETY_ZONE_HEIGHT = height * 0.40; 
     const CENTER_X = width / 2;
@@ -161,13 +155,11 @@ function aggiungiSpecieMinacciata() {
         x = random(width); 
         y = random(height); 
 
-        // Controllo se il punto è dentro l'ellisse centrale (dove c'è il testo)
         const x_rel = x - CENTER_X;
         const y_rel = y - CENTER_Y;
         const isInsideSafetyZone = ( (x_rel * x_rel) / (SAFETY_ZONE_WIDTH / 2 * SAFETY_ZONE_WIDTH / 2) ) + 
                                    ( (y_rel * y_rel) / (SAFETY_ZONE_HEIGHT / 2 * SAFETY_ZONE_HEIGHT / 2) ) < 1;
 
-        // Controllo se il punto si sovrappone ad altre particelle
         let overlap = false;
         const distanzaMinima = raggio * 2.5;
         for (let i = 0; i < specieMinacciateApparse.length; i++) {
@@ -200,14 +192,12 @@ class SpeciesParticle {
         this.targetAlpha = 255;
         this.fadeSpeed = 10; 
         
-        // Colore iniziale #d8cfc0 (216, 207, 192)
         this.R_INIT = 216;
         this.G_INIT = 207;
         this.B_INIT = 192;
         this.fillColor = color(this.R_INIT, this.G_INIT, this.B_INIT);
     }
     
-    // Metodo per settare il colore (usato per reset o per il set finale)
     setFillColor(r, g, b) {
         this.fillColor = color(r, g, b);
     }
@@ -218,12 +208,10 @@ class SpeciesParticle {
             this.alpha = min(this.alpha, this.targetAlpha);
         }
         
-        // Logica per la transizione di colore graduale
         if (isColorTransitioning) {
             let timeElapsed = millis() - colorTransitionStartTime;
             let t = constrain(timeElapsed / COLOR_TRANSITION_DURATION_MS, 0, 1);
             
-            // Dissolvenza dei componenti RGB dal colore iniziale al colore finale (#444444)
             let R = lerp(this.R_INIT, R_FINAL_PALLINI, t);
             let G = lerp(this.G_INIT, G_FINAL_PALLINI, t);
             let B = lerp(this.B_INIT, B_FINAL_PALLINI, t);
@@ -232,7 +220,6 @@ class SpeciesParticle {
         }
 
         noStroke();
-        // Usa il colore attuale, mantenendo l'alpha
         this.fillColor.setAlpha(this.alpha);
         fill(this.fillColor);
         ellipse(this.x, this.y, this.r * 2);
@@ -244,25 +231,24 @@ class SpeciesParticle {
 // --------------------------------------------------------------------------------
 
 window.addEventListener('load', function() {
-    // --- RIFERIMENTI DOM ---
+
     backgroundElement = document.getElementById('foto_sfondo_inizio');
     textOverlay = document.getElementById('text-overlay');
     h1Element = textOverlay.querySelector('h1'); 
     arrowNext = document.getElementById('arrow-next');
     arrowPrev = document.getElementById('arrow-prev');
-    
+    skipButton = document.getElementById('skip-button');
+
     // --- INIZIALIZZAZIONE ---
     setTimeout(function() {
-        // Applica sfocatura e overlay verde dopo 3s
         backgroundElement.classList.add('blurred');
         setTimeout(function() {
             h1Element.innerHTML = frasi[indiceFrase]; 
             textOverlay.classList.add('visible');
             updateArrowsVisibility(); 
-        }, 500); // 0.5s dopo la sfocatura
-    }, 3000); // Ritardo iniziale
+        }, 500);
+    }, 3000);
     
-    // --- HELPERS CAMBIO SFONDO (Cross-Fade) ---
     function changeBackgroundToCartaWithFade() {
         backgroundElement.classList.add('carta'); 
     }
@@ -271,77 +257,70 @@ window.addEventListener('load', function() {
         backgroundElement.classList.remove('carta'); 
     }
 
-    // --- FUNZIONI DI SUPPORTO INTERFACCIA ---
     function updateContent(newIndex) {
-        // 1. Fade-out del testo
-        textOverlay.classList.remove('visible');
-        
-        // Clear il contenuto IMMEDIATAMENTE dopo l'inizio del fade-out (MIGLIORATO)
-        h1Element.innerHTML = ''; 
-        
-        // 2. Reset animazione e stato
+
+    // fade-out
+    textOverlay.classList.remove('visible');
+    textOverlay.classList.add('hidden');
+
+    setTimeout(() => {
+
+        // reset contenuto
+        h1Element.innerHTML = '';
+
         isCountdownAnimating = false;
         animationComplete = false;
-        // Spegni la transizione di colore
-        isColorTransitioning = false; 
+        isColorTransitioning = false;
 
-        // Nasconde canvas SOLO se NON si va alla frase 3 (finale)
         const canvasElement = document.querySelector('canvas');
-        if (canvasElement && newIndex !== 3) canvasElement.style.display = 'none'; 
-        
-        // Reset particelle al colore iniziale #d8cfc0
+        if (canvasElement && newIndex !== 3) canvasElement.style.display = 'none';
+
         if (specieMinacciateApparse.length > 0) {
             for (let p of specieMinacciateApparse) {
-               p.setFillColor(216, 207, 192); // #d8cfc0
+                p.setFillColor(216, 207, 192);
             }
         }
-        
-        // Reset completo se si torna all'inizio
+
         if (newIndex < 1) {
             specieMinacciateApparse = [];
-            indiceProssimaSpecie = 0; 
+            indiceProssimaSpecie = 0;
         }
-        
-        // Ripristina opacità sfondo a 1 
-        backgroundElement.style.opacity = 1; 
 
-        // Aggiorna indice frase
+        backgroundElement.style.opacity = 1;
         indiceFrase = newIndex;
-        
-        // Flag per la frase 2
         isPhraseTwoDisplayed = (indiceFrase === 1);
-        
-        // Rimuove eventuale frase extra
+
         const extraSentence = h1Element.querySelector('#extra-sentence');
         if (extraSentence) extraSentence.remove();
-        
-        // Se si esce dalla schermata finale, ripristina lo sfondo iniziale
+
         if (newIndex <= 2 && backgroundElement.classList.contains('carta')) {
             restoreInitialBackgroundWithFade();
         }
 
-        // 3. Dopo 1.5s (durata del cross-fade), aggiorna contenuto e rifà fade-in
-        setTimeout(() => {
-            h1Element.innerHTML = frasi[indiceFrase];
+        // aggiorna contenuto
+        h1Element.innerHTML = frasi[indiceFrase];
 
-            // Reset classi di animazione del numero
-            const numElement = h1Element.querySelector('#animated-number');
-            if (numElement) {
-                numElement.classList.remove('final-animation');
-                numElement.classList.remove('centered-number');
-            }
-            const descriptiveText = h1Element.querySelector('#descriptive-text');
-            if (descriptiveText) {
-                descriptiveText.classList.remove('hidden-text');
-            }
+        // fade-in
+        textOverlay.classList.remove('hidden');
+        textOverlay.classList.add('visible');
 
-            // Fade-in del testo
-            textOverlay.classList.add('visible');
-            updateArrowsVisibility();
-        }, 1500);
-    }
+        updateArrowsVisibility();
+
+    }, 1000); // durata fade-out
+}
     
     function updateArrowsVisibility() {
+
+        // nella schermata finale niente freccia avanti
+        if (indiceFrase === 3) {
+            arrowNext.classList.remove('visible');
+            arrowPrev.classList.add('visible');
+
+            // NASCONDI IL PULSANTE SALTA 
+             skipButton.style.display = "none";
+            return;
+        }
+
         if (indiceFrase > 0) {
             arrowPrev.classList.add('visible');
         } else {
@@ -361,11 +340,9 @@ window.addEventListener('load', function() {
             descriptiveText.classList.add('hidden-text');
         }
 
-        // Nasconde frecce durante l’animazione
         arrowNext.classList.remove('visible'); 
         arrowPrev.classList.remove('visible'); 
 
-        // Ritardo per far scomparire il testo descrittivo
         setTimeout(function() {
             if (descriptiveText) descriptiveText.remove();
 
@@ -376,7 +353,6 @@ window.addEventListener('load', function() {
                 const canvasElement = document.querySelector('canvas');
                 if (canvasElement) canvasElement.style.display = 'block'; 
                 
-                // Reset animazione e avvio
                 specieMinacciateApparse = [];
                 indiceProssimaSpecie = 0;
                 animationComplete = false;
@@ -398,7 +374,6 @@ window.addEventListener('load', function() {
             startAnimationCountdown();
             
         } else if (indiceFrase === 1 && animationComplete) { 
-            // Transizione da numero animato a frase 3 (con testo extra)
             const contentBlock = h1Element.querySelector('.content-block');
             const numberEl = h1Element.querySelector('#animated-number');
 
@@ -422,36 +397,27 @@ window.addEventListener('load', function() {
             }
 
         } else if (indiceFrase === 2) { 
-            // Transizione alla schermata finale (indice 3) con cambio sfondo fluido e colore pallini graduale
             const extraSentence = h1Element.querySelector('#extra-sentence');
             if (extraSentence) extraSentence.remove(); 
             
             const canvasElement = document.querySelector('canvas');
             if (canvasElement) canvasElement.style.display = 'block'; 
             
-            // 1) Avvia il fade-out del testo (1s in CSS)
             textOverlay.classList.remove('visible');
-            
-            // Clear il contenuto IMMEDIATAMENTE
             h1Element.innerHTML = ''; 
             
-            // 2) Avvia la transizione di colore dei pallini in modo graduale
             isColorTransitioning = true;
             colorTransitionStartTime = millis(); 
             
-            // 3) Avvia il cambio sfondo cross-fade (dura 1.5s)
             changeBackgroundToCartaWithFade();
             
-            // 4) Aggiorna il contenuto e mostra il testo (OVERLAP)
             setTimeout(() => {
                 indiceFrase = 3;
                 h1Element.innerHTML = frasi[indiceFrase]; 
                 
-                // 5) Fai il fade-in del testo
                 textOverlay.classList.add('visible'); 
                 updateArrowsVisibility();
                 
-                // 6) Fix finale: setta esplicitamente il colore finale dopo la fine della transizione
                 setTimeout(() => {
                     isColorTransitioning = false;
                     for (let p of specieMinacciateApparse) {
@@ -459,19 +425,83 @@ window.addEventListener('load', function() {
                     }
                 }, COLOR_TRANSITION_DURATION_MS + 100); 
                 
-            }, 1300); // RIDOTTO A 1300ms per un overlap più fluido
+            }, 1300);
 
         } else if (indiceFrase === 3) {
-            // Presentazione conclusa: l’utente cliccherà sul link "Scopri"
-            console.log("Fine presentazione. L'utente cliccherà sul link.");
+            console.log("Fine presentazione.");
         }
     });
     
     arrowPrev.addEventListener('click', function() {
         if (isCountdownAnimating) return; 
-
-        if (indiceFrase > 0) { 
-            updateContent(indiceFrase - 1);
-        }
+        if (indiceFrase > 0) updateContent(indiceFrase - 1);
     });
+
+    // ------------------------------------------------------------
+    // 🔥 PULSANTE "SALTA" — versione definitiva e funzionante
+    // ------------------------------------------------------------
+    skipButton.addEventListener('click', function() {
+
+        textOverlay.classList.remove('visible');
+        h1Element.innerHTML = '';
+
+        const canvasElement = document.querySelector('canvas');
+        if (canvasElement) canvasElement.style.display = 'block';
+
+        // --- CREA SUBITO TUTTI I PALLINI ---
+        specieMinacciateApparse = [];
+        indiceProssimaSpecie = 0;
+        for (let i = 0; i < NUM_PALLINI_A_RISCHIO; i++) {
+            aggiungiSpecieMinacciata();
+        }
+
+        // --- ATTIVA SUBITO LA SFUMATURA VERDE ---
+        backgroundElement.classList.add('blurred');
+
+        // --- ASPETTA UN FRAME PRIMA DI ATTIVARE LA CARTA ---
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                isColorTransitioning = true;
+                colorTransitionStartTime = millis();
+                backgroundElement.classList.add('carta');
+            });
+        });
+
+        // --- DOPO IL CROSSFADE MOSTRA IL TESTO FINALE ---
+        setTimeout(() => {
+
+            indiceFrase = 3;
+            h1Element.innerHTML = frasi[3];
+            textOverlay.classList.add('visible');
+            updateArrowsVisibility();
+
+            // NASCONDI IL PULSANTE SALTA 
+            skipButton.style.display = "none";
+
+            setTimeout(() => {
+                isColorTransitioning = false;
+                for (let p of specieMinacciateApparse) {
+                    p.setFillColor(R_FINAL_PALLINI, G_FINAL_PALLINI, B_FINAL_PALLINI);
+                }
+            }, COLOR_TRANSITION_DURATION_MS + 100);
+
+        }, 1300);
+    });
+
+// ------------------------------------------------------------
+// NAVIGAZIONE CON TASTIERA
+// ------------------------------------------------------------
+document.addEventListener('keydown', function(e) {
+    if (isCountdownAnimating) return;
+
+    // Freccia destra → avanti
+    if (e.key === 'ArrowRight') {
+        arrowNext.click();
+    }
+
+    // Freccia sinistra → indietro
+    if (e.key === 'ArrowLeft') {
+        arrowPrev.click();
+    }
+});
 });

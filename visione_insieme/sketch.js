@@ -33,7 +33,7 @@ const palette = {
 };
 
 const bgColor   = "#F2F0E5";
-const textColor = "#333333";
+const textColor = "#4f4838";
 const neutralColor = "#E0E0E0"; 
 
 let outerRadius, wedgeAngles = [];
@@ -89,7 +89,8 @@ function preload() {
   try { imgChromisti1 = loadImage('immagini/infocromisti1.png'); } catch(e) { console.error("Errore"); }
   try { imgChromisti2 = loadImage('immagini/infocromisti2.png'); } catch(e) { console.error("Errore"); }
   
-  table = loadTable("regni_aree.csv", "csv", "header");
+  table = loadTable("data/regni_aree.csv", "csv", "header");
+  tableTotal = loadTable("data/data_main.csv", "csv", "header");
 }
 
 function setup() {
@@ -335,7 +336,7 @@ function drawCurvedLabel(i) {
   const label = areas[i].area;
   const textR = outerRadius + 15; 
   
-  textSize(constrain(width * 0.012, 10, 15));
+  textSize(constrain(width * 0.016, 10, 18));
   
   if (hoveredAreaIndex === i) {
       fill(0); textStyle(BOLD);
@@ -379,7 +380,7 @@ function drawCurvedLabel(i) {
     push();
     translate(x, y);
     rotate(ang + HALF_PI + angleFlip);
-    textSize(constrain(width * 0.012, 10, 15) * scaleFactor);
+    textSize(constrain(width * 0.016, 10, 18) * scaleFactor);
     text(ch, 0, 0);
     pop();
     
@@ -390,7 +391,7 @@ function drawCurvedLabel(i) {
 function drawTooltip(index) {
   const area = areas[index];
   const padding = 12;
-  const lineHeight = 20;
+  const lineHeight = 24;
   
   let content = [];
   content.push({ t: area.area.toUpperCase(), b: true, c: textColor });
@@ -407,7 +408,7 @@ function drawTooltip(index) {
     }
   });
 
-  textSize(14);
+  textSize(18);
   let maxW = 0;
   content.forEach(l => {
     textStyle(l.b ? BOLD : NORMAL);
@@ -448,38 +449,44 @@ function drawTooltip(index) {
 }
 
 function mouseClicked() {
+  // CLICK SULLA X DEL POPUP
   if (isPopupOpen) {
     const popX = width / 2;
     const popY = height / 2;
-    const margin = 30; 
-    
-    const boxLeft = popX - POPUP_WIDTH / 2;
-    const boxTop = popY - POPUP_HEIGHT / 2;
-    
-    const closeBtnX = boxLeft + POPUP_WIDTH - margin;
-    const closeBtnY = boxTop + margin;
+    const margin = 30;
     const btnSize = 30;
 
-    if (dist(mouseX, mouseY, closeBtnX, closeBtnY) < btnSize) {
+    const boxLeft = popX - POPUP_WIDTH / 2;
+    const boxTop = popY - POPUP_HEIGHT / 2;
+
+    const closeBtnX = boxLeft + POPUP_WIDTH - margin;
+    const closeBtnY = boxTop + margin;
+
+    if (dist(mouseX, mouseY, closeBtnX, closeBtnY) < btnSize / 2) {
       isPopupOpen = false;
+      currentPopupContent = null;
       return;
     }
-    return;
   }
   
-  if (!isPopupOpen && wheelProgress >= 1.0) {
-    for (let b of infoIconBounds) {
-      if (dist(mouseX, mouseY, b.x, b.y) < 15) {
-        currentPopupContent = popupData[b.k];
-        isPopupOpen = true;
-        return;
-      }
+  // CLICK SULL’ICONA "i"
+  for (let b of infoIconBounds) {
+    if (dist(mouseX, mouseY, b.x, b.y) < b.size) {
+
+      // APRI IL POPUP CON IL CONTENUTO CORRETTO
+      currentPopupContent = popupData[b.k];
+      isPopupOpen = true;
+
+      return; // BLOCCA ALTRI CLICK
     }
   }
 
   // NAVIGAZIONE AL CLICK DELLO SPICCHIO
-  if (!isPopupOpen && wheelProgress >= 1.0 && hoveredAreaIndex !== -1) {
-    window.location.href = "../dettaglio/index.html";
+  if (hoveredAreaIndex !== -1 && !isPopupOpen && wheelProgress >= 0.98) {
+    const areaName = areas[hoveredAreaIndex].area;
+    const slug = areaName.toLowerCase().replace(/\s+/g, "-");
+
+    window.location.href = `../dettaglio/index.html?area=${slug}`;
   }
 }
 
@@ -509,7 +516,7 @@ function drawTitle() {
 function drawLegend() {
   push();
   textStyle(NORMAL); 
-  if (wheelProgress >= 1.0) infoIconBounds = []; 
+  if (wheelProgress >= 0.98) infoIconBounds = []; 
 
   const legendX = 60; 
   
@@ -532,8 +539,12 @@ function drawLegend() {
   
   let currentY = 20 + sz_custom * 1.0 + sz_base * 1.0 + 40; 
 
-  const rowH = 30;
-  const legendHeight = rowH * (kingdoms.length + 1) + 30;
+  const innerPaddingY = 24; // margine sopra e sotto la box
+  const itemSpacing  = 34; // distanza tra Regni e i vari regni
+  // Altezza box con padding superiore e inferiori uguali
+  const legendHeight =
+    innerPaddingY * 2 +
+    itemSpacing * (kingdoms.length); // Regni + regni, SENZA spazio extra sotto
 
   const lx = legendX - 15;
   const ly = currentY - 15;
@@ -567,29 +578,184 @@ function drawLegend() {
   drawingContext.restore();
   pop();
   
-  // Contenuto Legenda
-  textSize(18); 
+  // CONTENUTO LEGENDA
+  textSize(22); // dimensione aumentata dei titoli Regni, Animalia...
   textAlign(LEFT, CENTER);
   fill(textColor);
+  // Posizione iniziale: margine superiore della box
+  let yCursor = ly + innerPaddingY;
+  // Titolo "Regni"
   textStyle(BOLD);
-  text("Regni", legendX, currentY); 
+  text("Regni", legendX, yCursor); 
   textStyle(NORMAL);
-  currentY += rowH;
-
-  kingdoms.forEach(k => { 
+  // Spazio dopo "Regni"
+  yCursor += itemSpacing;
+  // Lista dei regni
+  kingdoms.forEach((k, index) => {
     fill(palette[k]);
-    rect(legendX, currentY - 9, 18, 18, 4); 
+    rect(legendX, yCursor - 9, 18, 18, 4);
+
     fill(textColor);
-    text(capitalize(k), legendX + 26, currentY);
+    text(capitalize(k), legendX + 26, yCursor);
+
     const iconX = legendX + 26 + textWidth(capitalize(k)) + 15;
-    drawInfoIconText(iconX, currentY);
-    
+    drawInfoIconText(iconX, yCursor);
     if (wheelProgress >= 1.0) {
-      infoIconBounds.push({x: iconX, y: currentY, size: 16, k: k});
+      infoIconBounds.push({ x: iconX, y: yCursor, size: 16, k: k });
     }
-    currentY += rowH;
+    // Aggiunge spazio SOLO se non è l’ultimo elemento
+    if (index < kingdoms.length - 1) {
+     yCursor += itemSpacing;
+    }
   });
   pop();
+
+  drawStatsSection(lx, ly, lw, lh);
+}
+
+function drawStatsSection (lx, ly, lw, lh) {
+  // BOX STATISTICHE (TOTALI ↔ AREA)
+  const globalTotals = getTotalsFromCSV();
+
+  let boxLeftTitle, boxLeftValue;
+  let boxRightTitle, boxRightValue;
+  let headerText;
+
+  // Se c'è hover → Dati area e % sul mondo
+  if (hoveredAreaIndex !== -1) {
+    const areaName = areas[hoveredAreaIndex].area;
+    const areaTotal = getAreaTotalSpecies(areaName);
+
+    boxLeftTitle = "Percentuale sul totale mondiale";
+    boxLeftValue = globalTotals.totalSpecies > 0
+      ? ((areaTotal / globalTotals.totalSpecies) * 100).toFixed(1) + "%"
+      : "—";
+
+    boxRightTitle = "Specie a rischio nell’area";
+    boxRightValue = areaTotal;
+
+    headerText = areaName;
+  }
+  // Altrimenti → Dati globali
+  else {
+    boxLeftTitle = "Specie totali nell mondo";
+    boxLeftValue = globalTotals.totalSpecies;
+
+    boxRightTitle = "Specie a rischio nell mondo";
+    boxRightValue = globalTotals.threatenedSpecies;
+
+    headerText = "Scorri il grafico per vedere le specie a rischio per area e la loro percentuale \n sul totale mondiale, e clicca per scoprire le cause.";
+  }
+
+  const boxGap = 12;
+  //const statBoxH = 60;
+  const statBoxW = (lw - boxGap) / 2;
+  const statY = ly + lh + 15;
+  // CALCOLO ALTEZZA DINAMICA BOX STATISTICHE
+  const statPaddingTop = 10;      // margine superiore interno
+  const statPaddingBottom = 12;   // margine inferiore interno
+  const statGap = 4;              // spazio tra titolo e valore
+
+  const statTitleSize = 16;       // dimensione titolo
+  const statValueSize = 50;       // dimensione valore numerico
+
+  // Altezza box adattiva al contenuto
+  const statBoxH =
+    statPaddingTop +
+    statTitleSize +
+    statGap +
+    statValueSize +
+    statPaddingBottom;
+
+  // Box sinistro: specie totali
+  drawStatBox(lx, statY, statBoxW, statBoxH, boxLeftTitle, boxLeftValue, statPaddingTop, statGap, statTitleSize, statValueSize);
+
+  // Box destro: specie a rischio
+  drawStatBox(lx + statBoxW + boxGap, statY, statBoxW, statBoxH, boxRightTitle, boxRightValue, statPaddingTop, statGap, statTitleSize, statValueSize);
+
+  // TESTO SOTTO IL BOX / NOME AREA
+  push();
+    fill(textColor);
+    noStroke();
+    textAlign(LEFT, TOP);
+    textStyle(NORMAL);
+
+    const textX = lx + 12; // Allinea l'inizio del testo con il resto
+    const textY = statY + statBoxH + 10;
+    const textW = lw;
+
+    if (hoveredAreaIndex !== -1) {
+      // NOME AREA (hover)
+      const areaName = capitalizeWords(headerText);
+      // Dimensione grande ≈ due righe da 18px
+      const areaTextSize = 36;
+      textSize(areaTextSize);
+
+      text(areaName, textX, textY, textW);
+    } else {
+    // TESTO ESPLICATIVO
+      textSize(18);
+      text(headerText, textX, textY, textW);
+    }
+  pop();  
+}
+
+function drawStatBox (x, y, w, h, title, value, statPaddingTop, statGap, statTitleSize, statValueSize) {
+    push();
+    drawingContext.save();
+    drawingContext.beginPath();
+
+    const r = 10;
+    drawingContext.moveTo(x + r, y);
+    drawingContext.arcTo(x + w, y, x + w, y + h, r);
+    drawingContext.arcTo(x + w, y + h, x, y + h, r);
+    drawingContext.arcTo(x, y + h, x, y, r);
+    drawingContext.arcTo(x, y, x + w, y, r);
+    drawingContext.closePath();
+    drawingContext.clip();
+
+    // Sfondo carta
+    if (cartaPopup && cartaPopup.width > 1) {
+      image(cartaPopup, x, y, w, h);
+      fill(255, 180);
+      noStroke();
+      rect(x, y, w, h);
+    } else {
+      fill(255, 240);
+      noStroke();
+      rect(x, y, w, h);
+    }
+
+    drawingContext.restore();
+
+    // Stato testo
+    fill(textColor);
+    noStroke();
+    textAlign(LEFT, TOP);
+
+    const textX = x + 12;
+    let textY = y + statPaddingTop;
+
+    textStyle(BOLD);
+    textSize(statTitleSize);
+    text(title, textX, textY);
+
+    // Spazio tra titolo e valore
+    textY += statTitleSize + statGap;
+
+    textStyle(NORMAL);
+    textSize(statValueSize);
+    text(value.toLocaleString("it-IT"), textX, textY);
+    pop();
+}
+
+function capitalizeWords(str) {
+  // Funzione per mettere in maiuscolo la prima lettera di ogni parola
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 }
 
 function drawInfoIconText(x, y) {
@@ -627,11 +793,26 @@ function drawReferenceCircles() {
         circle(0, 0, r * 2);
         drawingContext.setLineDash([]); 
         
-        fill(textColor); 
-        noStroke(); 
-        textSize(10);
-        textAlign(LEFT, CENTER);
-        text(val, r + 5, 0); 
+        // TESTO CURVO ATTORNO AL CERCHIO
+        const label = String(val); 
+        const angle = -PI * 78 / 180; // posizione: sopra al cerchio (78 gradi)
+        const textRadius = r + 10; // distanza dal cerchio
+
+        push();
+        translate(
+          cos(angle) * textRadius,
+          sin(angle) * textRadius
+        );
+
+        // Ruota il testo seguendo la tangente del cerchio
+        rotate(angle + HALF_PI);
+
+        fill(100); // stesso tono del cerchio
+        noStroke();
+        textSize(16);
+        textAlign(CENTER, CENTER);
+        text(label, 0, 0);
+        pop();
     }
   }
   pop();
@@ -802,6 +983,38 @@ function drawPopup() {
 
 function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function getTotalsFromCSV() {
+  // Estrae i valori dalla riga "Total" del CSV
+  let result = {
+    totalSpecies: 0,
+    threatenedSpecies: 0
+  };
+
+  for (let r = 0; r < tableTotal.getRowCount(); r++) {
+    const name = tableTotal.getString(r, "Name");
+    if (name === "Total") {
+      result.totalSpecies = int(
+        tableTotal.getString(r, "Total").replace(/\./g, "")
+      );
+      result.threatenedSpecies = int(
+        tableTotal.getString(r, "Subtotal (threatened spp.)").replace(/\./g, "")
+      );
+      break;
+    }
+  }
+
+  return result;
+}
+
+function getAreaTotalSpecies(areaName) {
+  for (let a of areas) {
+    if (a.area === areaName) {
+      return a.total;
+    }
+  }
+  return 0;
 }
 
 function windowResized() {

@@ -1,6 +1,7 @@
-/* style.css */
+/* -------------------------------------------------- */
+/* RESET & BASE */
+/* -------------------------------------------------- */
 
-/* FIX: ELIMINARE LAMPO BIANCO E SETTARE FONT */
 html, body {
   margin: 0;
   padding: 0;
@@ -10,10 +11,12 @@ html, body {
   font-family: 'Cormorant', serif; 
   color: #d8cfc0;
   background-color: #003214; 
+  font-variant-numeric: tabular-nums lining-nums; 
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 /* -------------------------------------------------- */
-/* SFONDO E FILTRI */
+/* SFONDO PRINCIPALE */
 /* -------------------------------------------------- */
 
 #foto_sfondo_inizio {
@@ -22,26 +25,24 @@ html, body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgb(236, 225, 184); 
-  /* Immagine iniziale */
-  background-image: url('foto_sfondo_inizio.jpg'); 
+  background-color: rgb(236, 225, 184);
+  background-image: url('foto_sfondo_inizio.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: 1; 
-  opacity: 1; /* Deve rimanere a 1 all'inizio */
-  transform: scale(1); 
-  /* Transizione per l'opacità dello sfondo principale e del filtro */
-  transition: filter 1.5s ease-in-out, transform 1.5s ease-in-out, opacity 1.5s ease-in-out;
+  z-index: 1;
+  opacity: 1;
+  transform: scale(1);
+  transition: filter 1.5s ease-in-out, transform 1.5s ease-in-out;
 }
 
-/* NUOVA REGOLA: Applica la sfocatura (blur) quando la classe 'blurred' è attiva */
+/* Sfocatura */
 #foto_sfondo_inizio.blurred {
-    filter: blur(5px); 
+  filter: blur(5px);
 }
 
-/* Overlay Colore Verde Semitrasparente */
-#foto_sfondo_inizio.blurred::before {
+/* Overlay verde — sempre presente, trasparente di default */
+#foto_sfondo_inizio::before {
   content: '';
   position: absolute;
   top: 0;
@@ -50,89 +51,91 @@ html, body {
   height: 100%;
   background-color: rgba(0, 50, 20, 0.6);
   pointer-events: none;
-  z-index: 2; /* Sopra l'immagine principale */
-  transition: opacity 1.5s ease-in-out; /* Sfumiamo l'opacità dell'overlay */
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
 }
 
-/* Elemento ::after per lo sfondo 'carta.jpg' */
+/* Quando blurred → overlay visibile */
+#foto_sfondo_inizio.blurred::before {
+  opacity: 1;
+}
+
+/* Quando carta → overlay scompare SEMPRE */
+#foto_sfondo_inizio.carta::before {
+  opacity: 0;
+}
+
+/* Carta */
 #foto_sfondo_inizio::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Immagine finale */
-    background-image: url('carta.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0; /* Inizialmente nascosto */
-    pointer-events: none;
-    z-index: 1; /* Sotto il ::before (overlay verde) */
-    transition: opacity 1.5s ease-in-out; /* Transizione per il cross-fade di 'carta.jpg' */
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('carta.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 1.5s ease-in-out;
 }
 
-/* CLASSE PER LA TRANSIZIONE (Cross-fade) */
-#foto_sfondo_inizio.carta {
-    /* 1. Rimuove la sfocatura gradualmente (se presente) */
-    filter: none;
-    /* 2. Sfumiamo a zero l'opacità dello sfondo principale (foto_sfondo_inizio.jpg) */
-    opacity: 0;
-}
-
-/* 3. L'overlay verde scompare */
-#foto_sfondo_inizio.carta.blurred::before {
-    opacity: 0;
-}
-
-/* 4. Lo sfondo 'carta.jpg' appare */
+/* Carta visibile */
 #foto_sfondo_inizio.carta::after {
-    opacity: 1;
+  opacity: 1;
 }
 
+/* Canvas */
 canvas {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 20; /* Assicura che i pallini siano visibili sopra tutti gli sfondi */
+  z-index: 20;
 }
 
 /* -------------------------------------------------- */
-/* OVERLAY TESTO CENTRALE */
+/* OVERLAY TESTO */
 /* -------------------------------------------------- */
 
 #text-overlay {
   position: fixed;
-  top: 0; 
-  left: 0; 
-  width: 100vw; 
-  height: 100vh; 
-  display: flex; 
-  align-items: center; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  z-index: 30; /* Deve essere sopra i pallini */
+  z-index: 30;
   text-align: center;
-  opacity: 0; 
-  transition: opacity 1s ease-in-out; 
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
 }
 
 #text-overlay.visible {
   opacity: 1;
 }
 
+#text-overlay.hidden {
+  opacity: 0;
+}
+
 #text-overlay h1 {
-  max-width: 90vw; 
-  font-size: 3.5rem; 
+  max-width: 90vw;
+  font-size: 3.5rem;
   color: #d8cfc0;
-  line-height: 1.2; 
+  line-height: 1.2;
   margin: 0;
   font-weight: 400;
-  transition: all 1.5s ease-in-out; 
+  transition: all 1.5s ease-in-out;
 }
 
 /* -------------------------------------------------- */
-/* FRECCE (Z-Index alto garantito) */
+/* FRECCE */
 /* -------------------------------------------------- */
 
 #arrow-next, #arrow-prev {
@@ -142,19 +145,17 @@ canvas {
   height: 2rem;
   border-top: 3px solid #d8cfc0;
   cursor: pointer;
-  z-index: 100; 
-  opacity: 0; 
+  z-index: 100;
+  opacity: 0;
   transition: opacity 1s ease-in-out, transform 0.3s ease;
 }
 
-/* Freccia Destra (Next) */
 #arrow-next {
   right: 2vw;
   border-right: 3px solid #d8cfc0;
-  transform: translateY(-50%) rotate(45deg); 
+  transform: translateY(-50%) rotate(45deg);
 }
 
-/* Freccia Sinistra (Prev) */
 #arrow-prev {
   left: 2vw;
   border-left: 3px solid #d8cfc0;
@@ -164,90 +165,127 @@ canvas {
 #arrow-next.visible, #arrow-prev.visible {
   opacity: 1;
 }
+
 #arrow-next:hover {
   transform: translateY(-50%) rotate(45deg) scale(1.2);
 }
+
 #arrow-prev:hover {
   transform: translateY(-50%) rotate(-45deg) scale(1.2);
 }
 
 /* -------------------------------------------------- */
-/* TRANSIZIONE DEL TESTO (ANIMAZIONE NUMERO) */
+/* ANIMAZIONE NUMERO */
 /* -------------------------------------------------- */
 
-/* 1. Nasconde il testo descrittivo */
 #descriptive-text {
-    color: #d8cfc0;
-    display: block; 
-    line-height: 1.2; 
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  color: #d8cfc0;
+  display: block;
+  line-height: 1.2;
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
 #descriptive-text.hidden-text {
   opacity: 0;
-  transform: translateY(-20px); 
+  transform: translateY(-20px);
 }
 
-/* 2. Ingrandimento del solo numero */
 #animated-number {
+  font-variant-numeric: tabular-nums lining-nums; 
+  font-feature-settings: "tnum" 1, "lnum" 1;
   display: block;
-  margin: 0 auto 0 auto;
+  margin: 0 auto;
   text-align: center;
-  transition: font-size 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), font-weight 0.8s ease-in-out; 
+  transition: font-size 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), font-weight 0.8s ease-in-out;
   color: #d8cfc0;
 }
 
 .final-animation {
-    font-size: 6.5rem !important; 
-    font-weight: 700 !important;
+  font-size: 6.5rem !important;
+  font-weight: 700 !important;
 }
 
-/* Stili Parte Finale (Info e Pulsante) */
+/* -------------------------------------------------- */
+/* FINALE */
+/* -------------------------------------------------- */
+
 #info-text {
-    font-size: 3.5rem; 
-    color: #1c1a1a; /* Colore testo finale*/
-    line-height: 1.2;
-    margin-bottom: 30px; 
-    font-weight: 400;
+  font-size: 3.5rem;
+  color: #4f4838;
+  line-height: 1.2;
+  margin-bottom: 30px;
+  font-weight: 400;
 }
 
 #link-button {
-    display: inline-block; 
-    padding: 15px 30px;
-    /* Il bordo è #d8cfc0 (chiaro) */
-    border: 2px solid #1c1a1a; 
-    background-color: transparent;
-    color: #1c1a1a; 
-    font-family: 'Cormorant', serif; 
-    font-size: 1.5rem; 
-    text-decoration: none; 
-    cursor: pointer;
-    border-radius: 13px; 
-    transition: background-color 0.3s ease, color 0.3s ease;
+  display: inline-block;
+  padding: 15px 30px;
+  border: 2px solid #5e4d47;
+  background-color: transparent;
+  color: #5e4d47;
+  font-family: 'Cormorant', serif;
+  font-size: 1.5rem;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 13px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #link-button:hover {
-    background-color: #d8cfc0; 
-    color: #4e4138; 
+  background-color: #d8cfc0;
+  color: #4e4138;
 }
 
-/* MEDIA QUERIES per Mobile */
+/* -------------------------------------------------- */
+/* SKIP BUTTON */
+/* -------------------------------------------------- */
+
+#skip-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px 26px;
+  background: transparent;
+  border: 2px solid #d8cfc0;
+  color: #d8cfc0;
+  font-family: 'Cormorant', serif;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 200;
+  opacity: 0.9;
+  border-radius: 14px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#skip-button:hover {
+  background-color: #d8cfc0;
+  color: #615944;
+  border-color: #d8cfc0;
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+
+/* -------------------------------------------------- */
+/* MOBILE */
+/* -------------------------------------------------- */
+
 @media (max-width: 768px) {
-    #text-overlay h1 {
-        font-size: 2rem;
-    }
-    .final-animation {
-        font-size: 3.5rem !important;
-    }
-    #arrow-next, #arrow-prev {
-      width: 1.5rem;
-      height: 1.5rem;
-    }
-    #info-text {
-        font-size: 2rem;
-    }
-    #link-button {
-        font-size: 1.2rem;
-        padding: 10px 20px;
-    }
+  #text-overlay h1 {
+    font-size: 2rem;
+  }
+  .final-animation {
+    font-size: 3.5rem !important;
+  }
+  #arrow-next, #arrow-prev {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  #info-text {
+    font-size: 2rem;
+  }
+  #link-button {
+    font-size: 1.2rem;
+    padding: 10px 20px;
+  }
 }

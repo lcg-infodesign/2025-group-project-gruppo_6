@@ -1,8 +1,8 @@
 /* STILE DELLA NAVBAR */
 .navbar {
-  background-color: #f0e0cc; 
+  background-color: #e2d9cd; 
   width: 100%;
-  padding: 18px clamp(10px, 4vw, 48px); 
+  padding: 18px clamp(15px, 4vw, 48px); 
   position: sticky; 
   top: 0;
   z-index: 1000;
@@ -30,7 +30,7 @@
 .nav-item a {
   text-decoration: none;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 700;
   font-size: 1.3rem; 
   transition: color 0.2s ease;
   font-family: "cormorant-garamond", serif;

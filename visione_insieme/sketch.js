@@ -408,10 +408,10 @@ function drawTooltip(index) {
     }
   });
 
-  textSize(18);
+  textSize(14);
+  textStyle(BOLD);
   let maxW = 0;
   content.forEach(l => {
-    textStyle(l.b ? BOLD : NORMAL);
     let w = textWidth(l.t) + (l.dotColor ? 15 : 0);
     if (w > maxW) maxW = w;
   });
@@ -426,7 +426,8 @@ function drawTooltip(index) {
 
   push();
   fill(255, 250);
-  stroke(200);
+  stroke(textColor);
+  strokeWeight(1);
   rect(tx, ty, boxW, boxH, 6);
   
   let cy = ty + padding;
@@ -441,7 +442,6 @@ function drawTooltip(index) {
       cx += 15;
     }
     fill(l.c);
-    textStyle(l.b ? BOLD : NORMAL);
     text(l.t, cx, cy);
     cy += lineHeight;
   });
@@ -449,16 +449,13 @@ function drawTooltip(index) {
 }
 
 function mouseClicked() {
-  // CLICK SULLA X DEL POPUP
   if (isPopupOpen) {
     const popX = width / 2;
     const popY = height / 2;
     const margin = 30;
     const btnSize = 30;
-
     const boxLeft = popX - POPUP_WIDTH / 2;
     const boxTop = popY - POPUP_HEIGHT / 2;
-
     const closeBtnX = boxLeft + POPUP_WIDTH - margin;
     const closeBtnY = boxTop + margin;
 
@@ -469,23 +466,17 @@ function mouseClicked() {
     }
   }
   
-  // CLICK SULL’ICONA "i"
   for (let b of infoIconBounds) {
     if (dist(mouseX, mouseY, b.x, b.y) < b.size) {
-
-      // APRI IL POPUP CON IL CONTENUTO CORRETTO
       currentPopupContent = popupData[b.k];
       isPopupOpen = true;
-
-      return; // BLOCCA ALTRI CLICK
+      return;
     }
   }
 
-  // NAVIGAZIONE AL CLICK DELLO SPICCHIO
   if (hoveredAreaIndex !== -1 && !isPopupOpen && wheelProgress >= 0.98) {
     const areaName = areas[hoveredAreaIndex].area;
     const slug = areaName.toLowerCase().replace(/\s+/g, "-");
-
     window.location.href = `../dettaglio/index.html?area=${slug}`;
   }
 }
@@ -497,7 +488,6 @@ function drawTitle() {
   textAlign(LEFT, TOP);
   textStyle(NORMAL); 
   
-  // Font Sizes
   const sz_custom = constrain(width * 0.09375, 56, 225); 
   const sz_base = constrain(width * 0.03375, 22.5, 81); 
   
@@ -519,80 +509,72 @@ function drawLegend() {
   if (wheelProgress >= 0.98) infoIconBounds = []; 
 
   const legendX = 60; 
-  
-  // *** CALCOLO DIMENSIONI TITOLO PER ALLINEAMENTO ***
   const sz_custom = constrain(width * 0.09375, 56, 225); 
   const sz_base = constrain(width * 0.03375, 22.5, 81); 
   
-  // Misura la larghezza esatta dei due testi del titolo
   textSize(sz_custom);
   let w1 = textWidth("Atlante");
   textSize(sz_base);
   let w2 = textWidth("delle Specie a Rischio");
   
-  // La larghezza base della legenda è uguale alla riga più lunga del titolo
   let baseLegendWidth = max(w1, w2);
-  
-  // Aggiungi padding laterale (15px a sx e 15px a dx del box)
-  // Il testo inizia a legendX, il box inizia a legendX - 15.
-  // Quindi larghezza totale box = baseLegendWidth + 30
-  
   let currentY = 20 + sz_custom * 1.0 + sz_base * 1.0 + 40; 
 
-  const innerPaddingY = 24; // margine sopra e sotto la box
-  const itemSpacing  = 34; // distanza tra Regni e i vari regni
-  // Altezza box con padding superiore e inferiori uguali
-  const legendHeight =
-    innerPaddingY * 2 +
-    itemSpacing * (kingdoms.length); // Regni + regni, SENZA spazio extra sotto
+  const innerPaddingY = 24; 
+  const itemSpacing  = 34; 
+  const legendHeight = innerPaddingY * 2 + itemSpacing * (kingdoms.length); 
 
   const lx = legendX - 15;
   const ly = currentY - 15;
-  const lw = baseLegendWidth + 30; // Larghezza dinamica allineata al titolo
+  const lw = baseLegendWidth + 30; 
   const lh = legendHeight;
 
-  // Disegno Sfondo Legenda
   push();
-  drawingContext.save();
-  drawingContext.beginPath();
   const r = 10;
-  const x = lx, y = ly, w = lw, h = lh;
-  drawingContext.moveTo(x + r, y);
-  drawingContext.arcTo(x + w, y, x + w, y + h, r);
-  drawingContext.arcTo(x + w, y + h, x, y + h, r);
-  drawingContext.arcTo(x, y + h, x, y, r);
-  drawingContext.arcTo(x, y, x + w, y, r);
-  drawingContext.closePath();
-  drawingContext.clip();
-
+  stroke(textColor);
+  strokeWeight(1.5);
+  
   if (cartaPopup && cartaPopup.width > 1) {
-     image(cartaPopup, lx, ly, lw, lh);
-     fill(255, 180); 
-     noStroke();
-     rect(lx, ly, lw, lh);
+    drawingContext.save();
+    drawingContext.beginPath();
+    drawingContext.moveTo(lx + r, ly);
+    drawingContext.arcTo(lx + lw, ly, lx + lw, ly + lh, r);
+    drawingContext.arcTo(lx + lw, ly + lh, lx, ly + lh, r);
+    drawingContext.arcTo(lx, ly + lh, lx, ly, r);
+    drawingContext.arcTo(lx, ly, lx + lw, ly, r);
+    drawingContext.closePath();
+    drawingContext.clip();
+    
+    image(cartaPopup, lx, ly, lw, lh);
+    fill(255, 180); 
+    noStroke();
+    rect(lx, ly, lw, lh);
+    drawingContext.restore();
+    
+    noFill();
+    stroke(textColor);
+    rect(lx, ly, lw, lh, r);
   } else {
-     fill(255, 240);
-     noStroke();
-     rect(lx, ly, lw, lh);
+    fill(255, 240);
+    stroke(textColor);
+    rect(lx, ly, lw, lh, r);
   }
-  drawingContext.restore();
   pop();
   
-  // CONTENUTO LEGENDA
-  textSize(22); // dimensione aumentata dei titoli Regni, Animalia...
+  textSize(22); 
   textAlign(LEFT, CENTER);
   fill(textColor);
-  // Posizione iniziale: margine superiore della box
   let yCursor = ly + innerPaddingY;
-  // Titolo "Regni"
+  
   textStyle(BOLD);
+  noStroke();
   text("Regni", legendX, yCursor); 
   textStyle(NORMAL);
-  // Spazio dopo "Regni"
   yCursor += itemSpacing;
-  // Lista dei regni
+
   kingdoms.forEach((k, index) => {
     fill(palette[k]);
+    noStroke();
     rect(legendX, yCursor - 9, 18, 18, 4);
 
     fill(textColor);
@@ -603,7 +585,6 @@ function drawLegend() {
     if (wheelProgress >= 1.0) {
       infoIconBounds.push({ x: iconX, y: yCursor, size: 16, k: k });
     }
-    // Aggiunge spazio SOLO se non è l’ultimo elemento
     if (index < kingdoms.length - 1) {
      yCursor += itemSpacing;
     }
@@ -614,86 +595,56 @@ function drawLegend() {
 }
 
 function drawStatsSection (lx, ly, lw, lh) {
-  // BOX STATISTICHE (TOTALI ↔ AREA)
   const globalTotals = getTotalsFromCSV();
 
   let boxLeftTitle, boxLeftValue;
   let boxRightTitle, boxRightValue;
   let headerText;
 
-  // Se c'è hover → Dati area e % sul mondo
   if (hoveredAreaIndex !== -1) {
     const areaName = areas[hoveredAreaIndex].area;
     const areaTotal = getAreaTotalSpecies(areaName);
-
     boxLeftTitle = "Percentuale sul totale mondiale";
     boxLeftValue = globalTotals.totalSpecies > 0
       ? ((areaTotal / globalTotals.totalSpecies) * 100).toFixed(1) + "%"
       : "—";
-
     boxRightTitle = "Specie a rischio nell’area";
     boxRightValue = areaTotal;
-
     headerText = areaName;
-  }
-  // Altrimenti → Dati globali
-  else {
+  } else {
     boxLeftTitle = "Specie totali studiate";
     boxLeftValue = globalTotals.totalSpecies;
-
     boxRightTitle = "Specie a rischio studiate";
     boxRightValue = globalTotals.threatenedSpecies;
-
     headerText = "Fai hover sul grafico per vedere le specie a rischio per area e la loro percentuale \nsul totale mondiale. \n Clicca per scoprire le cause.";
   }
 
   const boxGap = 12;
-  //const statBoxH = 60;
   const statBoxW = (lw - boxGap) / 2;
   const statY = ly + lh + 15;
-  // CALCOLO ALTEZZA DINAMICA BOX STATISTICHE
-  const statPaddingTop = 10;      // margine superiore interno
-  const statPaddingBottom = 12;   // margine inferiore interno
-  const statGap = 4;              // spazio tra titolo e valore
+  const statPaddingTop = 10;
+  const statPaddingBottom = 12;
+  const statGap = 4;
+  const statTitleSize = 16;
+  const statValueSize = 50;
+  const statBoxH = statPaddingTop + statTitleSize + statGap + statValueSize + statPaddingBottom;
 
-  const statTitleSize = 16;       // dimensione titolo
-  const statValueSize = 50;       // dimensione valore numerico
-
-  // Altezza box adattiva al contenuto
-  const statBoxH =
-    statPaddingTop +
-    statTitleSize +
-    statGap +
-    statValueSize +
-    statPaddingBottom;
-
-  // Box sinistro: specie totali
   drawStatBox(lx, statY, statBoxW, statBoxH, boxLeftTitle, boxLeftValue, statPaddingTop, statGap, statTitleSize, statValueSize);
-
-  // Box destro: specie a rischio
   drawStatBox(lx + statBoxW + boxGap, statY, statBoxW, statBoxH, boxRightTitle, boxRightValue, statPaddingTop, statGap, statTitleSize, statValueSize);
 
-  // TESTO SOTTO IL BOX / NOME AREA
   push();
     fill(textColor);
     noStroke();
     textAlign(LEFT, TOP);
     textStyle(NORMAL);
-
-    const textX = lx + 12; // Allinea l'inizio del testo con il resto
+    const textX = lx + 12;
     const textY = statY + statBoxH + 40;
     const textW = lw;
 
     if (hoveredAreaIndex !== -1) {
-      // NOME AREA (hover)
-      const areaName = capitalizeWords(headerText);
-      // Dimensione grande ≈ due righe da 18px
-      const areaTextSize = 36;
-      textSize(areaTextSize);
-
-      text(areaName, textX, textY, textW);
+      textSize(36);
+      text(capitalizeWords(headerText), textX, textY, textW);
     } else {
-    // TESTO ESPLICATIVO
       textSize(24);
       text(headerText, textX, textY, textW);
     }
@@ -702,47 +653,45 @@ function drawStatsSection (lx, ly, lw, lh) {
 
 function drawStatBox (x, y, w, h, title, value, statPaddingTop, statGap, statTitleSize, statValueSize) {
     push();
-    drawingContext.save();
-    drawingContext.beginPath();
-
     const r = 10;
-    drawingContext.moveTo(x + r, y);
-    drawingContext.arcTo(x + w, y, x + w, y + h, r);
-    drawingContext.arcTo(x + w, y + h, x, y + h, r);
-    drawingContext.arcTo(x, y + h, x, y, r);
-    drawingContext.arcTo(x, y, x + w, y, r);
-    drawingContext.closePath();
-    drawingContext.clip();
-
-    // Sfondo carta
+    stroke(textColor);
+    strokeWeight(1.5);
+    
     if (cartaPopup && cartaPopup.width > 1) {
+      drawingContext.save();
+      drawingContext.beginPath();
+      drawingContext.moveTo(x + r, y);
+      drawingContext.arcTo(x + w, y, x + w, y + h, r);
+      drawingContext.arcTo(x + w, y + h, x, y + h, r);
+      drawingContext.arcTo(x, y + h, x, y, r);
+      drawingContext.arcTo(x, y, x + w, y, r);
+      drawingContext.closePath();
+      drawingContext.clip();
+
       image(cartaPopup, x, y, w, h);
       fill(255, 180);
       noStroke();
       rect(x, y, w, h);
+      drawingContext.restore();
+      
+      noFill();
+      stroke(textColor);
+      rect(x, y, w, h, r);
     } else {
       fill(255, 240);
-      noStroke();
-      rect(x, y, w, h);
+      stroke(textColor);
+      rect(x, y, w, h, r);
     }
 
-    drawingContext.restore();
-
-    // Stato testo
     fill(textColor);
     noStroke();
     textAlign(LEFT, TOP);
-
     const textX = x + 12;
     let textY = y + statPaddingTop;
-
     textStyle(BOLD);
     textSize(statTitleSize);
     text(title, textX, textY);
-
-    // Spazio tra titolo e valore
     textY += statTitleSize + statGap;
-
     textStyle(NORMAL);
     textSize(statValueSize);
     text(value.toLocaleString("it-IT"), textX, textY);
@@ -750,12 +699,7 @@ function drawStatBox (x, y, w, h, title, value, statPaddingTop, statGap, statTit
 }
 
 function capitalizeWords(str) {
-  // Funzione per mettere in maiuscolo la prima lettera di ogni parola
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  return str.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
 function drawInfoIconText(x, y) {
@@ -765,7 +709,6 @@ function drawInfoIconText(x, y) {
   stroke(textColor);
   strokeWeight(1);
   circle(x, y, iconSize);
-
   fill(textColor);
   noStroke();
   textAlign(CENTER, CENTER);
@@ -793,21 +736,13 @@ function drawReferenceCircles() {
         circle(0, 0, r * 2);
         drawingContext.setLineDash([]); 
         
-        // TESTO CURVO ATTORNO AL CERCHIO
         const label = String(val); 
-        const angle = -PI * 78 / 180; // posizione: sopra al cerchio (78 gradi)
-        const textRadius = r + 10; // distanza dal cerchio
-
+        const angle = -PI * 78 / 180;
+        const textRadius = r + 10;
         push();
-        translate(
-          cos(angle) * textRadius,
-          sin(angle) * textRadius
-        );
-
-        // Ruota il testo seguendo la tangente del cerchio
+        translate(cos(angle) * textRadius, sin(angle) * textRadius);
         rotate(angle + HALF_PI);
-
-        fill(100); // stesso tono del cerchio
+        fill(100);
         noStroke();
         textSize(16);
         textAlign(CENTER, CENTER);
@@ -832,19 +767,15 @@ function drawScaledImage(img, slotX, slotW, slotY, slotH, scaleMultiplier) {
 
 function drawPopup() {
   if (!isPopupOpen) return; 
-  
   fill(0, 100); 
   noStroke();
   rect(0, 0, width, height);
-
   const popX = width / 2;
   const popY = height / 2;
-  
   const curH = POPUP_HEIGHT; 
-
   const boxLeft = popX - POPUP_WIDTH / 2;
   const boxTop = popY - curH / 2;
-  const textMargin = 30; // Margine interno standard
+  const textMargin = 30;
 
   push();
   drawingContext.save();
@@ -859,166 +790,78 @@ function drawPopup() {
   drawingContext.closePath();
   drawingContext.clip();
 
-  const safetyMargin = 2; // Margine di sicurezza per coprire artefatti
-
+  const safetyMargin = 2;
   if (cartaPopup && cartaPopup.width > 1) {
-     image(cartaPopup, 
-           boxLeft - safetyMargin, 
-           boxTop - safetyMargin, 
-           POPUP_WIDTH + 2 * safetyMargin, 
-           curH + 2 * safetyMargin);
+     image(cartaPopup, boxLeft - safetyMargin, boxTop - safetyMargin, POPUP_WIDTH + 2 * safetyMargin, curH + 2 * safetyMargin);
   } else {
      fill(255, 250);
      noStroke();
-     rectMode(CORNER);
-     rect(boxLeft - safetyMargin, 
-          boxTop - safetyMargin, 
-          POPUP_WIDTH + 2 * safetyMargin, 
-          curH + 2 * safetyMargin);
+     rect(boxLeft - safetyMargin, boxTop - safetyMargin, POPUP_WIDTH + 2 * safetyMargin, curH + 2 * safetyMargin);
   }
   drawingContext.restore();
   
-  {
-    fill(textColor);
-    noStroke();
-    
-    textAlign(LEFT, TOP); 
-    textSize(64); 
-    
-    let t = currentPopupContent ? currentPopupContent.title : "Info";
-    let titleX = boxLeft + textMargin; 
-    text(t, titleX, boxTop + 18);
+  fill(textColor);
+  noStroke();
+  textAlign(LEFT, TOP); 
+  textSize(64); 
+  let t = currentPopupContent ? currentPopupContent.title : "Info";
+  text(t, boxLeft + textMargin, boxTop + 18);
 
-    const contentYStart = boxTop + 100; 
-    const contentH = curH - 130; 
-    
-    const regno = currentPopupContent ? currentPopupContent.title.replace("Regno ", "").toLowerCase() : '';
-    let img1, img2, part1, part2;
+  const contentYStart = boxTop + 100; 
+  const contentH = curH - 130; 
+  const regno = currentPopupContent ? currentPopupContent.title.replace("Regno ", "").toLowerCase() : '';
+  let img1, img2, part1, part2;
 
-    if (regno === 'animalia') {
-        img1 = imgAnimali2; 
-        img2 = imgAnimali1; 
-        part1 = popupData.animalia.description_part1;
-        part2 = popupData.animalia.description_part2;
-    } else if (regno === 'plantae') {
-        img1 = imgPiante1; img2 = imgPiante2;
-        part1 = popupData.plantae.description_part1;
-        part2 = popupData.plantae.description_part2;
-    } else if (regno === 'fungi') {
-        img1 = imgFunghi2; 
-        img2 = imgFunghi1; 
-        part1 = popupData.fungi.description_part1;
-        part2 = popupData.fungi.description_part2;
-    } else if (regno === 'chromista') {
-        img1 = imgChromisti1; img2 = imgChromisti2;
-        part1 = popupData.chromista.description_part1;
-        part2 = popupData.chromista.description_part2;
-    }
+  if (regno === 'animalia') { img1 = imgAnimali2; img2 = imgAnimali1; part1 = popupData.animalia.description_part1; part2 = popupData.animalia.description_part2; }
+  else if (regno === 'plantae') { img1 = imgPiante1; img2 = imgPiante2; part1 = popupData.plantae.description_part1; part2 = popupData.plantae.description_part2; }
+  else if (regno === 'fungi') { img1 = imgFunghi2; img2 = imgFunghi1; part1 = popupData.fungi.description_part1; part2 = popupData.fungi.description_part2; }
+  else if (regno === 'chromista') { img1 = imgChromisti1; img2 = imgChromisti2; part1 = popupData.chromista.description_part1; part2 = popupData.chromista.description_part2; }
 
-    textStyle(NORMAL);
-    textSize(16); 
-    
-    const Gutter = 20; 
-    const fullContentW = POPUP_WIDTH - textMargin * 2;
-    
-    const BASE_SCALE = 1.0; 
-    let scale1 = BASE_SCALE; 
-    let scale2 = BASE_SCALE; 
+  textStyle(NORMAL);
+  textSize(16); 
+  const Gutter = 20; 
+  const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; 
+  let scale1 = 1.0, scale2 = 1.0; 
+  if (regno === 'fungi') { scale1 = 0.75; scale2 = 0.4; }
+  if (regno === 'plantae') { scale1 = 0.5625; scale2 = 0.5625; }
+  const ROW_HEIGHT = (contentH - Gutter) / 2; 
 
-    if (regno === 'fungi') {
-        scale1 = 0.75; 
-        scale2 = 0.4; 
-    }
-    
-    if (regno === 'plantae') {
-        scale1 = 0.5625; 
-        scale2 = 0.5625; 
-    }
-    
-    const ROW_HEIGHT = (contentH - Gutter) / 2; 
-    const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; 
+  text(part1, boxLeft + textMargin, contentYStart, COL_BASE_W, ROW_HEIGHT);
+  drawScaledImage(img1, boxLeft + textMargin + COL_BASE_W + Gutter, COL_BASE_W + textMargin, contentYStart, ROW_HEIGHT, scale1);
+  const row2YStart = contentYStart + ROW_HEIGHT + Gutter;
+  drawScaledImage(img2, boxLeft, COL_BASE_W + textMargin, row2YStart, ROW_HEIGHT, scale2);
+  text(part2, boxLeft + (COL_BASE_W + textMargin) + Gutter, row2YStart, COL_BASE_W, ROW_HEIGHT);
 
-    let text1X = boxLeft + textMargin;
-    textAlign(LEFT, TOP);
-    text(part1, 
-            text1X, 
-            contentYStart, 
-            COL_BASE_W, 
-            ROW_HEIGHT);
-            
-    let img1X = boxLeft + textMargin + COL_BASE_W + Gutter; 
-    let img1W = COL_BASE_W + textMargin; 
-    drawScaledImage(img1, img1X, img1W, contentYStart, ROW_HEIGHT, scale1);
-
-    const row2YStart = contentYStart + ROW_HEIGHT + Gutter;
-    
-    let img2X = boxLeft; 
-    let img2W = COL_BASE_W + textMargin; 
-    drawScaledImage(img2, img2X, img2W, row2YStart, ROW_HEIGHT, scale2);
-
-    let text2X = boxLeft + img2W + Gutter;
-    textAlign(LEFT, TOP);
-    text(part2, 
-            text2X, 
-            row2YStart, 
-            COL_BASE_W, 
-            ROW_HEIGHT);
-
-    const btnSize = 30;
-    const btnMargin = 30;
-    const closeCx = boxLeft + POPUP_WIDTH - btnMargin;
-    const closeCy = popY - POPUP_HEIGHT / 2 + btnMargin;
-    
-    rectMode(CENTER);
-    stroke(textColor);
-    strokeWeight(1.5);
-    noFill();
-    rect(closeCx, closeCy, btnSize, btnSize, 5);
-    strokeWeight(2);
-    line(closeCx - 6, closeCy - 6, closeCx + 6, closeCy + 6);
-    line(closeCx + 6, closeCy - 6, closeCx - 6, closeCy + 6);
-  }
+  const btnSize = 30, btnMargin = 30;
+  const closeCx = boxLeft + POPUP_WIDTH - btnMargin, closeCy = boxTop + btnMargin;
+  rectMode(CENTER);
+  stroke(textColor);
+  strokeWeight(1.5);
+  noFill();
+  rect(closeCx, closeCy, btnSize, btnSize, 5);
+  strokeWeight(2);
+  line(closeCx - 6, closeCy - 6, closeCx + 6, closeCy + 6);
+  line(closeCx + 6, closeCy - 6, closeCx - 6, closeCy + 6);
   pop();
 }
 
-function capitalize(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 function getTotalsFromCSV() {
-  // Estrae i valori dalla riga "Total" del CSV
-  let result = {
-    totalSpecies: 0,
-    threatenedSpecies: 0
-  };
-
+  let result = { totalSpecies: 0, threatenedSpecies: 0 };
   for (let r = 0; r < tableTotal.getRowCount(); r++) {
-    const name = tableTotal.getString(r, "Name");
-    if (name === "Total") {
-      result.totalSpecies = int(
-        tableTotal.getString(r, "Total").replace(/\./g, "")
-      );
-      result.threatenedSpecies = int(
-        tableTotal.getString(r, "Subtotal (threatened spp.)").replace(/\./g, "")
-      );
+    if (tableTotal.getString(r, "Name") === "Total") {
+      result.totalSpecies = int(tableTotal.getString(r, "Total").replace(/\./g, ""));
+      result.threatenedSpecies = int(tableTotal.getString(r, "Subtotal (threatened spp.)").replace(/\./g, ""));
       break;
     }
   }
-
   return result;
 }
 
 function getAreaTotalSpecies(areaName) {
-  for (let a of areas) {
-    if (a.area === areaName) {
-      return a.total;
-    }
-  }
+  for (let a of areas) { if (a.area === areaName) return a.total; }
   return 0;
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  computeLayout(); 
-  redraw(); 
-}
+function windowResized() { resizeCanvas(windowWidth, windowHeight); computeLayout(); redraw(); }

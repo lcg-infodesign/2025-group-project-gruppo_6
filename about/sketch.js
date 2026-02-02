@@ -19,7 +19,7 @@ const team = [
     description:"La nostra componente spagnola. Non si sa come ma capisce sempre tutto quello che diciamo.", image: "aroa.png", color: "#a182a8" },
   
   { name: "Ludovica", role: "Ricerca idee grafiche Programmatrice", 
-    description:"da inserire", image: "ludo.png", color: "#6889b1" }
+    description:"Cuore di panna fuori, Miranda Priestly dentro. Zero chiacchiere, ma all'ora della merenda è subito 'Annamo a pijà er gelato?'", image: "ludo.png", color: "#6889b1" }
 ];
 
 //  2. CREAZIONE CARD 

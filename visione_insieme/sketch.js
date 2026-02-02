@@ -754,7 +754,7 @@ function drawReferenceCircles() {
 }
 
 function drawScaledImage(img, slotX, slotW, slotY, slotH, scaleMultiplier) {
-     if (img) {
+       if (img) {
         let naturalScale = max(slotW / img.width, slotH / img.height);
         const scaleFactor = naturalScale * scaleMultiplier;
         const w = img.width * scaleFactor;
@@ -822,12 +822,13 @@ function drawPopup() {
   const Gutter = 20; 
   const COL_BASE_W = (POPUP_WIDTH - 2 * textMargin - Gutter) / 2; 
   let scale1 = 1.0, scale2 = 1.0; 
+  let imgOffsetY = 0;
   if (regno === 'fungi') { scale1 = 0.75; scale2 = 0.4; }
-  if (regno === 'plantae') { scale1 = 0.5625; scale2 = 0.5625; }
+  if (regno === 'plantae') { scale1 = 0.5625; scale2 = 0.5625; imgOffsetY = -30;}
   const ROW_HEIGHT = (contentH - Gutter) / 2; 
 
   text(part1, boxLeft + textMargin, contentYStart, COL_BASE_W, ROW_HEIGHT);
-  drawScaledImage(img1, boxLeft + textMargin + COL_BASE_W + Gutter, COL_BASE_W + textMargin, contentYStart, ROW_HEIGHT, scale1);
+  drawScaledImage(img1, boxLeft + textMargin + COL_BASE_W + Gutter, COL_BASE_W + textMargin, contentYStart + imgOffsetY, ROW_HEIGHT, scale1);
   const row2YStart = contentYStart + ROW_HEIGHT + Gutter;
   drawScaledImage(img2, boxLeft, COL_BASE_W + textMargin, row2YStart, ROW_HEIGHT, scale2);
   text(part2, boxLeft + (COL_BASE_W + textMargin) + Gutter, row2YStart, COL_BASE_W, ROW_HEIGHT);

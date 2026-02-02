@@ -237,6 +237,20 @@ function setup() {
   removeTotalRow(data_funghi);
   removeTotalRow(data_cromisti);
 
+  function removeTotalColumn(table) {
+    const cols = table.columns;
+    for (let i = cols.length - 1; i >= 0; i--) {
+      if (normalizeCause(cols[i]) === "total") {
+        table.removeColumn(i);
+      }
+    }
+  }
+
+  removeTotalColumn(data_animali);
+  removeTotalColumn(data_piante);
+  removeTotalColumn(data_funghi);
+  removeTotalColumn(data_cromisti);
+
   // Layout verticale
   let marginTop = 280;
   let spacingY = 400;
@@ -256,7 +270,10 @@ function setup() {
   }
 
   // Lista cause normalizzate
-  causes = data_animali.columns.slice(1).map(normalizeCause);
+  causes = data_animali.columns
+    .slice(1)
+    .map(normalizeCause)
+    .filter(c => c !== "total");
 
   // Mappa cause → colonne reali per ogni regno
   causeMap = {
@@ -354,8 +371,8 @@ function drawHeader() {
   push();
   const sz = constrain(width * 0.05, 30, 60);
   const menuTextSize = sz * 0.48;
-  textFont(customFont);
-  textStyle(NORMAL);
+  textFont("cormorant-garamond");
+  textStyle(BOLD);
   fill(TEXT_COLOR);
 
   const x = width * 0.63;
@@ -407,16 +424,16 @@ function drawHeader() {
   menuH_global = menuH;
   menuSz_global = sz;
 
-  // Micronota sotto il titolo
+  // box informativo sotto il titolo
   const notaY = titoloY3 + menuH + 22;
   const notaW = 470;
   const notaH = 120;
 
   push();
-  fill(242, 240, 229);
-  stroke(TEXT_COLOR + "40");
+  stroke(TEXT_COLOR);
   strokeWeight(1);
-  rect(x, notaY, notaW, notaH, 10);
+  fill(255, 240);
+  rect(x, notaY, notaW, notaH, 10);  
 
   noStroke();
   fill(TEXT_COLOR);
@@ -545,11 +562,11 @@ function drawKingdomFlowers(activeCause) {
       let cardW = 240;
       let cardH = 110;
 
-      fill(242, 240, 229);
-      stroke(TEXT_COLOR + "40");
+      stroke(TEXT_COLOR);
       strokeWeight(1);
+      fill(255, 240);
       rect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
-
+      
       noStroke();
       fill(TEXT_COLOR);
       textAlign(CENTER, TOP);
@@ -646,11 +663,11 @@ function drawKingdomFlowers(activeCause) {
     let bw = textWidth(regno) + 42;
     let bh = 30;
 
-    fill("#F2F0E5");
-    stroke(TEXT_COLOR + "40");
+    stroke(TEXT_COLOR);
     strokeWeight(1);
+    fill(255, 240);
     rect(labelX, labelY, bw, bh, 20);
-
+    
     noStroke();
     fill(TEXT_COLOR);
     textFont(customFont);
@@ -883,21 +900,20 @@ return;
 
 }
 
-
 function drawTooltip() {
   if (clickedCause) return;
   if (!hoveredCause) return;
 
-  // niente tooltip per la legenda
   if (hoveredCause.value === undefined) return;
 
   let lettera = LETTERE_CAUSE[hoveredCause.cause] || "";
   let nomeEsteso = NOMI_CAUSE[hoveredCause.cause] || hoveredCause.cause;
   let txt = `${lettera} - ${nomeEsteso}: ${hoveredCause.value} specie`;
 
-  textSize(14);
-  let w = textWidth(txt) + 20;
-  let h = 30;
+  textSize(18); 
+  let padding = 12;
+  let w = textWidth(txt) + padding * 2;
+  let h = 38;
 
   let x = mouseX + 15;
   let y = mouseY + 15;
@@ -905,15 +921,18 @@ function drawTooltip() {
   if (x + w > width) x = mouseX - w - 10;
   if (y + h > height) y = mouseY - h - 10;
 
+  // sfondo + bordo
+  stroke(TEXT_COLOR);
+  strokeWeight(1);
   fill(255);
-  noStroke();
-  rect(x, y, w, h, 5);
+  rect(x, y, w, h, 6);
 
+  // testo
+  noStroke();
   fill(TEXT_COLOR);
   textAlign(LEFT, CENTER);
-  text(txt, x + 10, y + h / 2);
+  text(txt, x + padding, y + h / 2);
 }
-
 
 /* -------------------------------------------------------
    9. OVERLAY DESCRIZIONI

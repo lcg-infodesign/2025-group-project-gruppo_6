@@ -18,33 +18,33 @@ Abbiamo utilizzato Copilot per impostare la comparsa dei punti nell’animazione
 
 
 Dataset
-Il dataset IUCN Red List 2025 https://www.iucnredlist.org/statistics
-La IUCN Red List of Threatened Species è gestita dall’International Union for Conservation of Nature (IUCN), un’organizzazione mondiale considerata lo standard scientifico globale per la valutazione del rischio di estinzione.
-Contiene:
-Numero totale di specie conosciute per paese (260 paesi)
-Numero di specie in pericolo per area geo-climatica
-Totale gruppi tassonomici (4 gruppi)
-Numero di specie per gruppo tassonomico
-Numero di specie a rischio estinzione per gruppo tassonomico
-Numero di specie in pericolo in ciascun gruppo tassonomico per area geo-climatica
-Numero di specie in pericolo in ciascun gruppo tassonomico per una determinata ragione
-Numero di specie in pericolo in ciascun gruppo tassonomico per una determinata ragione, per area geo-climatica
-Di queste informazioni, abbiamo utilizzato in particolare:
-Per le specie: Numero di specie in pericolo per area geo-climatica
-Per i gruppi tassonomici: Numero di specie a rischio estinzione per gruppo tassonomico
-Per le aree climatiche e le cause: Numero di specie in pericolo in ciascun gruppo tassonomico per area climatica e Numero di specie in pericolo in ciascun gruppo tassonomico per una determinata ragione, per area climatica
-Abbiamo utilizzato tutti i dati nella loro forma originale tranne quelli relativi alle cause di estinzione: abbiamo ritenuto più interessante istituire un livello di confronto più mirato tra le cause stesse. Riteniamo che attraverso l’utilizzo del dato in percentuale di una causa di estinzione per gruppo tassonomico e area geo-climatica l’utente possa riflettere più facilmente sui rapporti tra le cause e le aree geo-climatiche, più difficili da comprendere rispetto ai rapporti tra le cause e i regni.
+<br> Il dataset IUCN Red List 2025 https://www.iucnredlist.org/statistics
+<br> La IUCN Red List of Threatened Species è gestita dall’International Union for Conservation of Nature (IUCN), un’organizzazione mondiale considerata lo standard scientifico globale per la valutazione del rischio di estinzione.
+<br> Contiene:
+<br> Numero totale di specie conosciute per paese (260 paesi)
+<br> Numero di specie in pericolo per area geo-climatica
+<br> Totale gruppi tassonomici (4 gruppi)
+<br> Numero di specie per gruppo tassonomico
+<br> Numero di specie a rischio estinzione per gruppo tassonomico
+<br> Numero di specie in pericolo in ciascun gruppo tassonomico per area geo-climatica
+<br> Numero di specie in pericolo in ciascun gruppo tassonomico per una determinata ragione
+<br> Numero di specie in pericolo in ciascun gruppo tassonomico per una determinata ragione, per area geo-climatica
+<br> Di queste informazioni, abbiamo utilizzato in particolare:
+<br> Per le specie: Numero di specie in pericolo per area geo-climatica
+<br> Per i gruppi tassonomici: Numero di specie a rischio estinzione per gruppo tassonomico
+<br> Per le aree climatiche e le cause: Numero di specie in pericolo in ciascun gruppo tassonomico per area climatica e Numero di specie in pericolo in ciascun gruppo tassonomico per una determinata ragione, per area climatica
+<br> Abbiamo utilizzato tutti i dati nella loro forma originale tranne quelli relativi alle cause di estinzione: abbiamo ritenuto più interessante istituire un livello di confronto più mirato tra le cause stesse. Riteniamo che attraverso l’utilizzo del dato in percentuale di una causa di estinzione per gruppo tassonomico e area geo-climatica l’utente possa riflettere più facilmente sui rapporti tra le cause e le aree geo-climatiche, più difficili da comprendere rispetto ai rapporti tra le cause e i regni.
 
 
 Il team
-Emily: Organizzazione dati; Content writer
-Ludovica: Ricerca idee grafiche; Programmazione “About us” e “Dataset”; Ultimazione Introduzione
-Rebecca: Ricerca e selezione dei dati; programmazione Visione d’insieme
-Isabella: Programmazione Visione di dettaglio e “About us”
-Aroa: Programmazione Visione d’insieme, Prototipi Figma
-Alessandro: Organizzazione illustrazioni e grafica del sito; Ultimazione introduzione
-Federica: Programmazione Introduzione; Illustrazioni; Content writer
+<br> Emily: Organizzazione dati; Content writer
+<br> Ludovica: Ricerca idee grafiche; Programmazione “About us” e “Dataset”; Ultimazione Introduzione
+<br> Rebecca: Ricerca e selezione dei dati; programmazione Visione d’insieme
+<br> Isabella: Programmazione Visione di dettaglio e “About us”
+<br> Aroa: Programmazione Visione d’insieme, Prototipi Figma
+<br> Alessandro: Organizzazione illustrazioni e grafica del sito; Ultimazione introduzione
+<br> Federica: Programmazione Introduzione; Illustrazioni; Content writer
 
 Licenza
-Specie a rischio © 2026 by Emily Anazco, Ludovica De Marco, Rebecca Ditaranto, Isabella Lena, Aroa Lopez Rabasseda, Alessandro Polistena, Federica Travagnin is licensed under CC BY 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by/4.0/
+<br> Specie a rischio © 2026 by Emily Anazco, Ludovica De Marco, Rebecca Ditaranto, Isabella Lena, Aroa Lopez Rabasseda, Alessandro Polistena, Federica Travagnin is licensed under CC BY 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by/4.0/
 

@@ -1,4 +1,30 @@
-/* STILE DELLA NAVBAR */
+/* 1. VARIABILI E RESET (Fondamentale per i colori) */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  /* Questi sono i colori usati nell'About */
+  --text: #4f4838;
+  --muted: #4f4838;
+}
+
+html, body {
+  margin: 0;
+}
+
+/* 2. STILE BASE DEL CORPO (Per avere lo stesso font e sfondo) */
+body {
+  background: #E1DDD3;
+  color: var(--text);
+  font-family: "cormorant-garamond", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(15px, 2.2vw, 19px);
+  min-height: 100vh;
+} 
+
+/* 3. STILE DELLA NAVBAR */
 .navbar {
   background-color: #e2d9cd; 
   width: 100%;
@@ -9,7 +35,6 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenitore interno per limitare la larghezza e allineare a destra */
 .nav-container {
   max-width: 1200px; 
   width: 100%;
@@ -29,7 +54,7 @@
 
 .nav-item a {
   text-decoration: none;
-  color: var(--text);
+  color: var(--text); 
   font-weight: 700;
   font-size: 1.3rem; 
   transition: color 0.2s ease;

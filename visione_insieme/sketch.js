@@ -638,13 +638,13 @@ function drawStatsSection (lx, ly, lw, lh) {
   }
   // Altrimenti → Dati globali
   else {
-    boxLeftTitle = "Specie totali nel mondo";
+    boxLeftTitle = "Specie totali studiate";
     boxLeftValue = globalTotals.totalSpecies;
 
-    boxRightTitle = "Specie a rischio nel mondo";
+    boxRightTitle = "Specie a rischio studiate";
     boxRightValue = globalTotals.threatenedSpecies;
 
-    headerText = "Fai hover sul grafico per vedere le specie a rischio per area \n e la loro percentuale sul totale mondiale. \n Clicca per scoprire le cause.";
+    headerText = "Fai hover sul grafico per vedere le specie a rischio per area e la loro percentuale \nsul totale mondiale. \n Clicca per scoprire le cause.";
   }
 
   const boxGap = 12;
@@ -681,7 +681,7 @@ function drawStatsSection (lx, ly, lw, lh) {
     textStyle(NORMAL);
 
     const textX = lx + 12; // Allinea l'inizio del testo con il resto
-    const textY = statY + statBoxH + 10;
+    const textY = statY + statBoxH + 40;
     const textW = lw;
 
     if (hoveredAreaIndex !== -1) {
@@ -694,7 +694,7 @@ function drawStatsSection (lx, ly, lw, lh) {
       text(areaName, textX, textY, textW);
     } else {
     // TESTO ESPLICATIVO
-      textSize(18);
+      textSize(24);
       text(headerText, textX, textY, textW);
     }
   pop();  

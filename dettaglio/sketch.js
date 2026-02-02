@@ -409,7 +409,7 @@ function drawHeader() {
 
   // Micronota sotto il titolo
   const notaY = titoloY3 + menuH + 22;
-  const notaW = 460;
+  const notaW = 470;
   const notaH = 120;
 
   push();
@@ -423,7 +423,7 @@ function drawHeader() {
   textAlign(LEFT, TOP);
   textSize(sz * 0.32);
   text(
-    "Ogni fiore rappresenta un regno biologico, dove la \nlunghezza dei petali indica quante specie sono minacciate \nda ciascuna causa. I dati sono normalizzati per permettere \nun confronto diretto tra i regni.",
+    "Ogni fiore rappresenta un regno biologico, dove la \nlunghezza dei petali indica quante specie sono minacciate \nda ciascuna causa. I dati sono normalizzati in modo da \nevidenziare i fattori di rischio maggiori per ciascun gruppo.",
     x + 14,
     notaY + 12
   );

@@ -1,5 +1,5 @@
 Biodiversità e specie a rischio
-di Emily Anazco, Ludovica De Marco, Rebecca Ditaranto, Isabella Lena, Aroa Lopez, Alessandro Polistena, Federica Travagnin
+<br> di Emily Anazco, Ludovica De Marco, Rebecca Ditaranto, Isabella Lena, Aroa Lopez, Alessandro Polistena, Federica Travagnin
 La biodiversità del nostro pianeta è in rapido declino. Oltre 48.600 specie su 172.620 valutate sono attualmente minacciate di estinzione, pari a circa il 28 % del totale. Questo sito offre una panoramica sulla crisi della biodiversità, rendendo il tema accessibile attraverso narrazioni visive e grafici interattivi, che permettono di osservare come le minacce variano tra diverse zone climatiche e gruppi tassonomici.
  
 Questo sito ha lo scopo di:

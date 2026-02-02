@@ -1,7 +1,3 @@
-/* -------------------------------------------------------
-   1. COSTANTI E VARIABILI GLOBALI
-------------------------------------------------------- */
-
 let data_aree, data_animali, data_piante, data_funghi, data_cromisti;
 let areas = [];
 let areasNormalized = [];
@@ -13,11 +9,11 @@ let menuOpen = false;
 let menuX_global, menuY_global, menuW_global, menuH_global, menuSz_global;
 let menuAlpha = 0;
 
-let petalShapes = {};   // forme precalcolate dei petali
-let centerShapes = {};  // forme precalcolate dei pistilli
+let petalShapes = {};   
+let centerShapes = {};  
 let customFont;
-let causeMap = {};      // mappa cause → colonne dataset
-let causes = [];        // lista cause normalizzate
+let causeMap = {};     
+let causes = [];   
 
 let hoveredCause = null;
 let clickedCause = null;
@@ -25,7 +21,8 @@ let overlayCloseBounds = null;
 
 let sfondo_overlay;
 
-// Palette regni
+
+
 const COLORS = {
   Animalia: "#B96A82",
   Plantae: "#A6C3A0",
@@ -33,11 +30,12 @@ const COLORS = {
   Chromista: "#8096AD"
 };
 
-// Colori UI
+
 const BG = "#E1DDD3";
 const TEXT_COLOR = "#4f4838";
 
-// Mappa abbreviazioni cause
+
+// CAUSE LEGENDA
 const LETTERE_CAUSE = {
   "agriculture and aquaculture": "e",
   "biological resource use": "h",
@@ -53,7 +51,7 @@ const LETTERE_CAUSE = {
   "other/unknown": "c"
 };
 
-// Nomi leggibili delle cause
+// CAUSE PER ESTESO
 const NOMI_CAUSE = {
   "agriculture and aquaculture": "Agricoltura",
   "biological resource use": "Sfruttamento risorse",
@@ -69,7 +67,7 @@ const NOMI_CAUSE = {
   "other/unknown": "Altro"
 };
 
-// Descrizioni lunghe per overlay
+// DESCRIZIONI INFO
 const DESCRIZIONI_CAUSE = {
   "agriculture and aquaculture": "L'impatto maggiore sulla biodiversità deriva dall'espansione e dell'intensificazione dell'agricoltura e acquacoltura, che interessa circa il 46,5% delle specie minacciate. Questa minaccia è guidata principalmente dalla conversione degli habitat naturali per le colture, il pascolo del bestiame e, in misura minore, lo sviluppo dell'acquacoltura, causando una perdita di habitat su vasta scala.",
   "biological resource use": "L'uso insostenibile delle risorse biologiche, come la raccolta eccessiva o la caccia, colpisce circa il 39,6% delle specie. La componente più significativa è il taglio e la raccolta di legname, spesso non sostenibile, seguito dalla pesca e dalla raccolta di risorse acquatiche, e dalla caccia e cattura non regolamentata di animali terrestri e piante.",
@@ -88,9 +86,7 @@ const DESCRIZIONI_CAUSE = {
 const KINGDOMS = ["Animalia", "Plantae", "Fungi", "Chromista"];
 
 
-/* -------------------------------------------------------
-   2. FUNZIONI DI UTILITÀ E NORMALIZZAZIONE
-------------------------------------------------------- */
+/* NORMALIZZAZIONE */
 
 function normalizeCause(name) {
   return name.toLowerCase().trim().replace(/\s+/g, " ");
@@ -104,7 +100,7 @@ function toTitleCase(s) {
   return String(s).toLowerCase().replace(/\b\w/g, ch => ch.toUpperCase());
 }
 
-// Costruisce una mappa { causa_normalizzata → nome_colonna_originale }
+// causa_normalizzata > nome_colonna_originale 
 function buildCauseMap(table) {
   let map = {};
   for (let col of table.columns) {
@@ -113,14 +109,14 @@ function buildCauseMap(table) {
   return map;
 }
 
-// Estrae area da URL
+// estrae area da URL
 function getAreaFromURL() {
   const params = new URLSearchParams(window.location.search);
   let area = params.get("area");
   return area ? area.replace(/-/g, " ").toLowerCase() : null;
 }
 
-// Trova la riga corrispondente all’area selezionata
+// trova la riga dell’area selezionata
 function getRowByArea(table, areaFromURL) {
   const target = normalizeAreaName(areaFromURL);
   let bestMatch = null;
@@ -148,7 +144,7 @@ function getRowByArea(table, areaFromURL) {
   return bestMatch;
 }
 
-// Dataset per regno
+
 function getDatasetByKingdom(regno) {
   if (regno === "Animalia") return data_animali;
   if (regno === "Plantae") return data_piante;
@@ -159,7 +155,7 @@ function getDatasetByKingdom(regno) {
 
 function getFlowerCenter(k) {
   const marginLeft = 260;
-  const marginTop = 250;   // quello corretto
+  const marginTop = 250; 
   const spacingX = 420;
   const spacingY = 400;
 
@@ -170,9 +166,7 @@ function getFlowerCenter(k) {
 }
 
 
-/* -------------------------------------------------------
-   3. PRELOAD: CARICAMENTO FONT E CSV
-------------------------------------------------------- */
+/* CARICAMENTO FONT E CSV */
 
 function preload() {
   customFont = loadFont("fonts/CormorantGaramond-VariableFont_wght.ttf");
@@ -187,9 +181,7 @@ function preload() {
 }
 
 
-/* -------------------------------------------------------
-   4. SETUP: INIZIALIZZAZIONE CANVAS E DATI
-------------------------------------------------------- */
+/* SETUP */
 
 function setup() {
   const params = new URLSearchParams(window.location.search);
@@ -197,21 +189,21 @@ function setup() {
 
   if (slugCercato) {
     let trovata = false;
-    // Scorriamo la tabella delle aree per trovare quella che corrisponde allo slug
+
     for (let r = 0; r < data_aree.getRowCount(); r++) {
        let nomeOriginale = data_aree.getString(r, 0);
        
        if (!nomeOriginale) continue;
 
-       // Generiamo lo slug con la STESSA formula usata nella Home
+
        let slugGenerato = nomeOriginale.toLowerCase().trim().replace(/\s+/g, "-");
 
        if (slugGenerato === slugCercato) {
-         // Corrispondenza trovata! Aggiorniamo le variabili globali
-         selectedAreaOriginal = nomeOriginale; // Aggiorna il titolo visibile nel menu
-         selectedArea = normalizeAreaName(nomeOriginale); // Aggiorna il filtro per i dati
+
+         selectedAreaOriginal = nomeOriginale;
+         selectedArea = normalizeAreaName(nomeOriginale);
          trovata = true;
-         break; // Smettiamo di cercare
+         break;
        }
     }
     
@@ -221,7 +213,7 @@ function setup() {
   }
 
 
-  // Rimuove la riga "Totale" da tutti i dataset
+  // non conta la riga "totale" 
   function removeTotalRow(table) {
     for (let r = table.getRowCount() - 1; r >= 0; r--) {
       let name = table.getString(r, 0);
@@ -251,7 +243,7 @@ function setup() {
   removeTotalColumn(data_funghi);
   removeTotalColumn(data_cromisti);
 
-  // Layout verticale
+  // layout verticale
   let marginTop = 280;
   let spacingY = 400;
   let rows = 2;
@@ -260,7 +252,7 @@ function setup() {
   createCanvas(windowWidth, totalHeight);
   textFont(customFont);
 
-  // Lista aree disponibili
+  // lista aree
   for (let r = 0; r < data_aree.getRowCount(); r++) {
     let area = data_aree.getString(r, 0);
     if (area && area.toLowerCase() !== "total") {
@@ -269,13 +261,13 @@ function setup() {
     }
   }
 
-  // Lista cause normalizzate
+  // lista cause
   causes = data_animali.columns
     .slice(1)
     .map(normalizeCause)
     .filter(c => c !== "total");
 
-  // Mappa cause → colonne reali per ogni regno
+
   causeMap = {
     Animalia: buildCauseMap(data_animali),
     Plantae: buildCauseMap(data_piante),
@@ -283,18 +275,18 @@ function setup() {
     Chromista: buildCauseMap(data_cromisti)
   };
 
-  // Precalcolo forme organiche dei petali e pistilli
+
   precalcShapes();
 }
 
 
-// Precalcolo forme organiche per petali e pistilli
+
 function precalcShapes() {
   for (let regno of KINGDOMS) {
     petalShapes[regno] = [];
     centerShapes[regno] = [];
 
-    // Petali
+    // petali
     for (let i = 0; i < causes.length; i++) {
       let layers = [];
       for (let l = 0; l < 12; l++) {
@@ -313,7 +305,7 @@ function precalcShapes() {
       petalShapes[regno].push(layers);
     }
 
-    // Pistilli
+    // pistilli
     for (let l = 0; l < 8; l++) {
       let shape = [];
       for (let a = 0; a < TWO_PI; a += PI / 10) {
@@ -330,9 +322,7 @@ function precalcShapes() {
 }
 
 
-/* -------------------------------------------------------
-   5. DRAW: CICLO DI RENDERING
-------------------------------------------------------- */
+/* DRAW */
 
 function draw() {
   clear();
@@ -363,9 +353,7 @@ function draw() {
 }
 
 
-/* -------------------------------------------------------
-   6. COMPONENTI UI: HEADER, MENU, LEGENDA
-------------------------------------------------------- */
+/* HEADER, MENU, LEGENDA */
 
 function drawHeader() {
   push();
@@ -389,7 +377,7 @@ function drawHeader() {
   const titoloY3 = titoloY2 + sz * 1.2;
   const label = selectedAreaOriginal;
 
-  // Calcolo coerente della larghezza
+
   textSize(menuTextSize);
   let maxW = textWidth(label);
   for (let area of areas) {
@@ -401,18 +389,18 @@ function drawHeader() {
   const menuX = x;
   const menuY = titoloY3;
 
-  // Bottone
+
   noStroke();
   fill("#F2F0E5");
   rect(menuX, menuY, menuW, menuH, 10);
 
-  // Testo area
+
   fill(TEXT_COLOR);
   textAlign(LEFT, CENTER);
   textSize(menuTextSize);
   text(label, menuX + 12, menuY + menuH / 2);
 
-  // Freccia
+
   textAlign(RIGHT, CENTER);
   text(menuOpen ? "▲" : "▼", menuX + menuW - 12, menuY + menuH / 2);
 
@@ -424,7 +412,7 @@ function drawHeader() {
   menuH_global = menuH;
   menuSz_global = sz;
 
-  // box informativo sotto il titolo
+  // box informativo
   const notaY = titoloY3 + menuH + 22;
   const notaW = 470;
   const notaH = 120;
@@ -453,7 +441,6 @@ function drawDropdownMenu(menuX, menuY, menuW, menuH, sz) {
   const menuTextSize = sz * 0.48;
   textSize(menuTextSize);
 
-  // disegna il menu SOPRA, senza spingere nulla
   for (let i = 0; i < areas.length; i++) {
     const iy = menuY + menuH + i * menuH;
     const ih = menuH;
@@ -476,7 +463,7 @@ function drawDropdownMenu(menuX, menuY, menuW, menuH, sz) {
     text(areas[i], menuX + 12, iy + ih / 2);
   }
 
-  pop(); // chiude l’overlay
+  pop(); 
 }
 
 function drawLegend(activeCause) {
@@ -517,9 +504,7 @@ function drawLegend(activeCause) {
 }
 
 
-/* -------------------------------------------------------
-   7. FIORI E PETALI
-------------------------------------------------------- */
+/* FIORI E PETALI */
 
 function drawKingdomFlowers(activeCause) {
   let centerRadius = 20;
@@ -542,7 +527,7 @@ function drawKingdomFlowers(activeCause) {
     let row = getRowByArea(dataset, selectedArea);
     if (!row) continue;
 
-    // trova il centro del fiore in modo coerente
+
     const { x: centerX, y: centerY } = getFlowerCenter(k);
 
     // calcolo max valore
@@ -554,7 +539,7 @@ function drawKingdomFlowers(activeCause) {
       if (val > maxValInRow) maxValInRow = val;
     }
 
-    // se non ci sono dati → cartellino
+    // se non ci sono dati esce cartellino
     if (maxValInRow === 0) {
       push();
       translate(centerX, centerY);
@@ -683,13 +668,11 @@ function drawKingdomFlowers(activeCause) {
   }
 } 
 
-/* -------------------------------------------------------
-   8. INTERAZIONI: HOVER, CLICK, TOOLTIP
-------------------------------------------------------- */
+/* HOVER, CLICK, TOOLTIP */
 
 function mouseMoved() {
 
-  // --- POINTER SULLA X DELL’OVERLAY ---
+
   if (clickedCause && overlayCloseBounds) {
     if (dist(mouseX, mouseY, overlayCloseBounds.x, overlayCloseBounds.y) < overlayCloseBounds.size) {
       cursor(HAND);
@@ -697,27 +680,27 @@ function mouseMoved() {
     }
   }
 
-  // --- SE OVERLAY APERTO → blocca tutto ---
+
   if (clickedCause) {
     cursor(ARROW);
     return;
   }
 
-  // --- SE MENU APERTO → blocca TUTTO l’hover ---
+
   if (menuOpen) {
     hoveredCause = null;
     cursor(ARROW);
     return;
   }
 
-  // --- POINTER SULLA CASELLA MENU ---
+
   if (mouseX > menuX_global && mouseX < menuX_global + menuW_global &&
       mouseY > menuY_global && mouseY < menuY_global + menuH_global) {
     cursor(HAND);
     return;
   }
 
-  // --- HOVER SULLA LEGENDA (senza tooltip) ---
+
   const szLegend = constrain(width * 0.05, 30, 60);
   const xLegend = width * 0.63;
   const startYLegend = szLegend * 1.2 + szLegend * 1.2 + szLegend * 1.2 + szLegend * 2.0 + 40 + 30;
@@ -739,14 +722,14 @@ function mouseMoved() {
     }
   }
 
-  // --- HOVER SUI PETALI ---
+  // HOVER SUI PETALI 
   hoveredCause = null;
   let isPointer = false;
 
   let centerRadius = 20;
   let angleStep = TWO_PI / causes.length;
 
-  // 🔧 valori necessari per i calcoli (mancavano!)
+
   let spacingX = 420;
   let spacingY = 400;
 
@@ -776,7 +759,7 @@ function mouseMoved() {
     }
     if (maxValInRow === 0) continue;
 
-    // ✔ posizione del fiore centralizzata
+
     const { x: centerX, y: centerY } = getFlowerCenter(k);
 
     if (dist(mx, my, centerX, centerY) > maxPossibleRadius + 160) continue;
@@ -823,7 +806,7 @@ function mouseMoved() {
 
 
 function mousePressed() {
-  // Overlay aperto: solo X funziona
+
   if (clickedCause) {
     if (overlayCloseBounds &&
         dist(mouseX, mouseY, overlayCloseBounds.x, overlayCloseBounds.y) < overlayCloseBounds.size) {
@@ -844,7 +827,7 @@ function mousePressed() {
     return;
   }
 
-  // 2) Se il menu è aperto → blocca tutto il resto
+  // 2) Se il menu è aperto blocca tutto il resto
   if (menuOpen) {
     // Click sulle voci del menu
     for (let i = 0; i < areas.length; i++) {
@@ -860,7 +843,7 @@ function mousePressed() {
       }
     }
 
-    // Click fuori → chiudi menu
+    // Click fuori > chiudi menu
     const menuBottom = menuY + menuH + areas.length * menuH;
     if (!(mouseX > menuX && mouseX < menuX + menuW &&
           mouseY > menuY && mouseY < menuBottom)) {
@@ -938,9 +921,7 @@ function drawTooltip() {
   text(txt, x + padding, y + h / 2);
 }
 
-/* -------------------------------------------------------
-   9. OVERLAY DESCRIZIONI
-------------------------------------------------------- */
+/* OVERLAY info */
 
 function drawOverlay(causeKey) {
   fill(0, 120);
@@ -957,7 +938,7 @@ function drawOverlay(causeKey) {
   push();
   push();
 
-  // path arrotondato per il clipping
+
   drawingContext.save();
   drawingContext.beginPath();
   drawingContext.moveTo(boxLeft + 12, boxTop);
@@ -972,7 +953,7 @@ function drawOverlay(causeKey) {
   drawingContext.closePath();
   drawingContext.clip();
 
-  // immagine di sfondo
+
   image(sfondo_overlay, boxLeft, boxTop, w, h);
 
   drawingContext.restore();

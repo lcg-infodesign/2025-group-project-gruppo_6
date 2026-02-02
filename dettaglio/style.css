@@ -17,8 +17,7 @@ html, body {
   background-size: cover; 
   background-position: center;
   background-attachment: fixed;
-
-  padding-bottom: 150px; /* riserva spazio per la decorazione */
+  padding-bottom: 150px;
 }
 
 canvas {
@@ -28,7 +27,7 @@ canvas {
   left: 0;
   width: 100%;
   z-index: 1;
-  cursor: default; /* cursore normale di base */
+  cursor: default;
 }
 
 
@@ -37,9 +36,9 @@ canvas {
   margin: 0 auto;
 }
 
-/* STILE DELLA NAVBAR (Uniformato ad About e Visione d'Insieme) */
+
 .navbar {
-  background-color: #e2d9cd; /* CAMBIATO: da #F2F0E5 a #e2d9cd */
+  background-color: #e2d9cd;
   width: 100%;
   padding: 18px clamp(15px, 4vw, 48px); 
   position: sticky; 
@@ -68,7 +67,7 @@ canvas {
 .nav-item a {
   text-decoration: none;
   color: var(--text);
-  font-weight: 700; /* CAMBIATO: da 500 a 700 (Bold) */
+  font-weight: 700;
   font-size: 1.3rem; 
   transition: color 0.2s ease;
   font-family: "cormorant-garamond", serif;
@@ -85,7 +84,7 @@ canvas {
   }
 }
 
-/* Bottone indietro */
+/* indietro freccia */
 .back-btn {
   position: fixed;
   top: 65px;
@@ -115,9 +114,9 @@ canvas {
   }
 }
 
-
+/* manina !! :D */
 .menu, .menu-item, .back-btn, .nav-item a {
-  cursor: pointer; /* mano sopra elementi cliccabili */
+  cursor: pointer; 
 }
 
 

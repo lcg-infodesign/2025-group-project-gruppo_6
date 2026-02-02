@@ -31,12 +31,11 @@ body {
   background-image: url('carta_verticale.jpg');
   background-repeat: no-repeat;
   background-attachment: scroll; 
-  background-size: cover; /* Per occupare tutto */
+  background-size: cover; 
 
-  position: relative; /* Serve per dare un punto di riferimento al fiore in absolute */
+  position: relative;
   margin: 0;
   min-height: 100vh;
-  /* ... resto del tuo codice ... */
 } 
 
 .container {
@@ -45,7 +44,9 @@ body {
   padding: clamp(16px, 4vw, 48px);
 }
 
-/* STILE DELLA NAVBAR */
+
+
+
 .navbar {
   background-color: #e2d9cd; 
   width: 100%;
@@ -56,7 +57,7 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenitore interno per limitare la larghezza e allineare a destra */
+
 .nav-container {
   max-width: 1200px; 
   width: 100%;
@@ -122,21 +123,19 @@ p {
   flex: 0 1 240px; 
   width: var(--card-w);
   min-height: 420px; 
-  
-  /* Toglie i bordi del div */
   border-radius: 0;
 
-  /* Sfondo trasparente e centrato */
+
   background-color: transparent !important;
   background-position: center;
   background-repeat: no-repeat;
   
-  /* L'immagine occupa tutto lo spazio disponibile */
+
   background-size: 100% 100%; 
 
   box-shadow: none;
   
-  /* Padding abbondante per tenere il testo al centro della macchia */
+
   padding: 50px 30px; 
   
   display: flex;
@@ -198,7 +197,9 @@ font-style: normal;
     max-height: 300px; 
 }
 
-/* Impostazioni immagine */
+
+
+
 .media {
   margin-top: 10px;
   border-radius: var(--radius-inner);
@@ -229,22 +230,23 @@ font-style: normal;
 }
 
 #corner-image {
-  position: absolute; /* Fondamentale: lo ancora al fondo della pagina, non dello schermo */
+  position: absolute;
   bottom: 0; 
   right: 0;
   width: 35vw; 
   height: auto;
   pointer-events: none;
-  /* z-index: lo portiamo a un valore neutro o positivo se vuoi che stia SOPRA lo sfondo ma SOTTO il testo */
   z-index: 0; 
 }
 
-/* STILE DEL FOOTER */
+
+
+
 .site-footer {
-  background-color: #e2d9cd; /* Stesso colore della navbar per coerenza */
+  background-color: #e2d9cd;
   color: var(--text);
   padding: 60px 0px;
-  margin-top: 100px; /* Stacca il footer dal resto del contenuto */
+  margin-top: 100px;
 }
 
 .footer-container {
@@ -257,7 +259,7 @@ font-style: normal;
 }
 
 .footer-section {
-  flex: 1 1 150px; /* Le colonne si adattano ma non scendono sotto 250px */
+  flex: 1 1 150px;
 }
 
 .footer-section h3 {
@@ -294,13 +296,13 @@ font-style: normal;
   font-style: italic;
 }
 
-/* Testo più piccolo per dettagli tecnici */
+
 .credits {
   font-size: 1.2rem !important;
   opacity: 0.8;
 }
 
-/* Mobile: centra tutto se lo schermo è piccolo */
+/* RESIZE */
 @media (max-width: 768px) {
   .footer-container {
     flex-direction: column;
@@ -310,23 +312,18 @@ font-style: normal;
 }
 
 .footer-logo {
-  /* Dimensione massima: regolala a occhio (tra 80px e 150px è standard) */
+
   max-width: 430px; 
-  height: auto; /* Mantiene le proporzioni, non si deforma */
-  
-  /* Spazio sotto il logo per non appiccicarlo al testo */
+  height: auto;
   margin-bottom: 20px; 
   opacity: 0.9;
 }
 
 .footer-logo2 {
-  /* Dimensione massima: regolala a occhio (tra 80px e 150px è standard) */
+
   max-width: 190px; 
-  height: auto; /* Mantiene le proporzioni, non si deforma */
-  
-  /* Spazio sotto il logo per non appiccicarlo al testo */
+  height: auto; 
   margin-bottom: 20px; 
- 
   opacity: 0.9;
   mix-blend-mode: multiply;
 }

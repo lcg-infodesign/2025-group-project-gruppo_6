@@ -1,4 +1,4 @@
-// 1. DATI DEL TEAM 
+// 1. DATI TEAM 
 const team = [
   { name: "Federica", role: "Illustratrice Programmatrice", 
     description:"Fate, boschi, animaletti, musica folk... questo sito è per lei.", image: "fede.png", color: "#c19e7f" },
@@ -22,17 +22,17 @@ const team = [
     description:"Cuore di panna fuori, Miranda Priestly dentro. Zero chiacchiere, ma all'ora della merenda è subito 'Annamo a pijà er gelato?'", image: "ludo.png", color: "#6889b1" }
 ];
 
-//  2. CREAZIONE CARD 
+//  2. CARD 
 
 function createCard(member, index) {
   const card = document.createElement("article");
-  card.className = "card"; // Classe unica per il CSS
+  card.className = "card"; 
   card.setAttribute("role", "listitem");
   card.setAttribute("aria-label", `${member.name}, ${member.role}`);
   
   card.id = `card-${index}`;
 
-  // Meta (Testo)
+  // testi
   const meta = document.createElement("div");
   meta.className = "meta";
 
@@ -52,34 +52,33 @@ function createCard(member, index) {
   meta.appendChild(role);
   meta.appendChild(description);
 
-  // Media (Immagine)
+  // immagini
   const media = document.createElement("div");
   media.className = "media";
 
   const img = document.createElement("img");
   img.src = member.image; 
-  // Placeholder di sicurezza se l'immagine manca
+  // se manca immagine
   img.onerror = function() { this.src = 'https://placehold.co/300x400/png?text=' + member.name; };
   img.alt = `Ritratto di ${member.name}`;
   
   media.appendChild(img);
 
-  // Assemblaggio
+
   card.appendChild(meta);
   card.appendChild(media);
 
   return card;
 }
 
-// Inizializzazione al caricamento della pagina
+// inizializzazione al caricamento della pagina
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("team-container");
 
     if(container) {
-        // Puliamo il container per sicurezza
+
         container.innerHTML = "";
         
-        // Criamo e appendiamo tutte le card in un unico ciclo
         team.forEach((member, index) => {
             const card = createCard(member, index);
             container.appendChild(card);
@@ -90,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-//  3. P5.JS & P5.BRUSH (Generazione Texture Sfondi) 
+//  3. P5 BRUSH
 
 function setup() {
   // Usiamo il renderer 2D di default 
@@ -105,7 +104,6 @@ function setup() {
 
 async function generateAllBackgrounds() {
   for (let i = 0; i < team.length; i++) {
-    // Aspettiamo un attimo tra una card e l'altra per non bloccare il browser
     await new Promise(r => setTimeout(r, 100)); 
     generateSingleBackground(i);
   }
@@ -120,31 +118,25 @@ function generateSingleBackground(index) {
   clear();
 
   const vertices = [];
-  const numPoints = 16; // Numero di punti che formano il perimetro 
+  const numPoints = 16; 
   
   const centerX = width / 2;
   const centerY = height / 2;
   
-  // Definiamo quanto deve essere grande la macchia
+  // acquerello area
   const radiusX = (width / 2); 
   const radiusY = (height / 2);
 
   for (let i = 0; i < numPoints; i++) {
-    // Calcoliamo l'angolo per questo punto (da 0 a 360 gradi)
     let angle = map(i, 0, numPoints, 0, TWO_PI);
-    
-    // Aggiungiamo un po' di irregolarità al raggio per non fare un cerchio perfetto
-    // Il raggio varierà tra il 90% e il 100% della dimensione prevista
     let rRandom = random(0.9, 1.0);
-    
-    // Matematica per trovare il punto sul perimetro (Coordinate Polari -> Cartesiane)
     let x = centerX + cos(angle) * radiusX * rRandom;
     let y = centerY + sin(angle) * radiusY * rRandom;
     
     vertices.push(createVector(x, y));
   }
   
-  // Creiamo l'oggetto base con questi vertici circolari
+
   let polyBase = new Poly(vertices);
 
   let accentColor = color(member.color);
@@ -203,7 +195,6 @@ class Poly {
   }
   
   dup() {
-    // Helper per non modificare l'originale quando disegniamo due livelli
     return new Poly([...this.vertices], [...this.modifiers]);
   }
   

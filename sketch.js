@@ -7,7 +7,7 @@ let NUM_SPECIE_FINALI;
 let NUM_PALLINI_A_RISCHIO = 0; 
 let RAGGIO_PALLINO = 3; 
 
-// --- Dati per l'Animazione Graduale (7 secondi) ---
+// animazione di 7 secondi
 let tempoInizioAnimazione; 
 const DURATA_ANIMAZIONE_TOTALE_MS = 7000; 
 
@@ -17,7 +17,7 @@ let isCountdownAnimating = false;
 let isPhraseTwoDisplayed = true; 
 let animationComplete = false;
 
-// Variabili per la transizione di colore dei pallini
+// transizione colore
 let isColorTransitioning = false;
 let colorTransitionStartTime;
 const COLOR_TRANSITION_DURATION_MS = 1500;
@@ -25,7 +25,7 @@ const R_FINAL_PALLINI = 176;
 const G_FINAL_PALLINI = 165; 
 const B_FINAL_PALLINI = 141; 
 
-// Riferimenti DOM
+// elementi
 let h1Element; 
 let backgroundElement; 
 let arrowNext;
@@ -33,7 +33,7 @@ let arrowPrev;
 let textOverlay;
 let skipButton;
 
-// Frasi visualizzate
+// testo
 const frasi = [
     "Le specie viventi<br>conosciute nel mondo sono<br>2.140.000",
     `<div class='content-block'><span id='descriptive-text'>Tra queste, finora è stato possibile<br>studiarne e catalogarne</span><div id='animated-number'>[Placeholder]</div></div>`,
@@ -46,9 +46,9 @@ const frasi = [
 
 let indiceFrase = 0;
 
-// --------------------------------------------------------------------------------
-// SEZIONE P5.JS
-// --------------------------------------------------------------------------------
+
+// P5.JS
+
 
 function preload() {
     table = loadTable('data_main.csv', 'csv', 'header');
@@ -136,9 +136,8 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 
-// --------------------------------------------------------------------------------
-// PARTICELLE
-// --------------------------------------------------------------------------------
+// PALLINI
+
 
 function aggiungiSpecieMinacciata() {
     const raggio = RAGGIO_PALLINO;
@@ -226,9 +225,9 @@ class SpeciesParticle {
     }
 }
 
-// --------------------------------------------------------------------------------
-// DOM
-// --------------------------------------------------------------------------------
+
+// ELEMENTI
+
 
 window.addEventListener('load', function() {
 
@@ -239,7 +238,7 @@ window.addEventListener('load', function() {
     arrowPrev = document.getElementById('arrow-prev');
     skipButton = document.getElementById('skip-button');
 
-    // --- INIZIALIZZAZIONE ---
+    // INIZIALIZZAZIONE
     setTimeout(function() {
         backgroundElement.classList.add('blurred');
         setTimeout(function() {
@@ -316,7 +315,7 @@ window.addEventListener('load', function() {
             arrowNext.classList.remove('visible');
             arrowPrev.classList.add('visible');
 
-            // NASCONDI IL PULSANTE SALTA 
+            // nella schermata finale niente salta
              skipButton.style.display = "none";
             return;
         }
@@ -363,7 +362,7 @@ window.addEventListener('load', function() {
         }, 500); 
     }
     
-    // --- EVENTI FRECCE ---
+    // FRECCE
     arrowNext.addEventListener('click', function() {
         if (isCountdownAnimating) return; 
 
@@ -437,9 +436,9 @@ window.addEventListener('load', function() {
         if (indiceFrase > 0) updateContent(indiceFrase - 1);
     });
 
-    // ------------------------------------------------------------
-    // 🔥 PULSANTE "SALTA" — versione definitiva e funzionante
-    // ------------------------------------------------------------
+
+    // SKIP
+
     skipButton.addEventListener('click', function() {
 
         textOverlay.classList.remove('visible');
@@ -448,17 +447,17 @@ window.addEventListener('load', function() {
         const canvasElement = document.querySelector('canvas');
         if (canvasElement) canvasElement.style.display = 'block';
 
-        // --- CREA SUBITO TUTTI I PALLINI ---
+        // CREA SUBITO TUTTI I PALLINI
         specieMinacciateApparse = [];
         indiceProssimaSpecie = 0;
         for (let i = 0; i < NUM_PALLINI_A_RISCHIO; i++) {
             aggiungiSpecieMinacciata();
         }
 
-        // --- ATTIVA SUBITO LA SFUMATURA VERDE ---
+        // ATTIVA SUBITO LA SFUMATURA VERDE
         backgroundElement.classList.add('blurred');
 
-        // --- ASPETTA UN FRAME PRIMA DI ATTIVARE LA CARTA ---
+        // DELAY CARTA
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 isColorTransitioning = true;
@@ -467,7 +466,7 @@ window.addEventListener('load', function() {
             });
         });
 
-        // --- DOPO IL CROSSFADE MOSTRA IL TESTO FINALE ---
+        // TESTO FINALE
         setTimeout(() => {
 
             indiceFrase = 3;
@@ -475,7 +474,7 @@ window.addEventListener('load', function() {
             textOverlay.classList.add('visible');
             updateArrowsVisibility();
 
-            // NASCONDI IL PULSANTE SALTA 
+            // NO SKIP
             skipButton.style.display = "none";
 
             setTimeout(() => {
@@ -488,9 +487,9 @@ window.addEventListener('load', function() {
         }, 1300);
     });
 
-// ------------------------------------------------------------
+
 // NAVIGAZIONE CON TASTIERA
-// ------------------------------------------------------------
+
 document.addEventListener('keydown', function(e) {
     if (isCountdownAnimating) return;
 

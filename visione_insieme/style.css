@@ -1,10 +1,9 @@
-/* 1. VARIABILI E RESET (Fondamentale per i colori) */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
 :root {
-  /* Questi sono i colori usati nell'About */
+ 
   --text: #4f4838;
   --muted: #4f4838;
 }
@@ -14,10 +13,11 @@ margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
-  overflow: hidden; /* Blocca lo scroll */
+  overflow: hidden; /* no scroll */
 }
 
-/* 2. STILE BASE DEL CORPO (Per avere lo stesso font e sfondo) */
+
+
 body {
   background: #E1DDD3;
   color: var(--text);
@@ -28,7 +28,8 @@ body {
   min-height: 100vh;
 } 
 
-/* 3. STILE DELLA NAVBAR */
+
+
 .navbar {
   background-color: #e2d9cd; 
   width: 100%;

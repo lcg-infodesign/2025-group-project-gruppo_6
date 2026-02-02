@@ -644,7 +644,7 @@ function drawStatsSection (lx, ly, lw, lh) {
     boxRightTitle = "Specie a rischio nel mondo";
     boxRightValue = globalTotals.threatenedSpecies;
 
-    headerText = "Fai hover sul grafico per vedere le specie a rischio per area e la loro percentuale sul totale mondiale. \n Clicca per scoprire le cause.";
+    headerText = "Fai hover sul grafico per vedere le specie a rischio per area \n e la loro percentuale sul totale mondiale. \n Clicca per scoprire le cause.";
   }
 
   const boxGap = 12;

@@ -638,13 +638,13 @@ function drawStatsSection (lx, ly, lw, lh) {
   }
   // Altrimenti → Dati globali
   else {
-    boxLeftTitle = "Specie totali nell mondo";
+    boxLeftTitle = "Specie totali nel mondo";
     boxLeftValue = globalTotals.totalSpecies;
 
-    boxRightTitle = "Specie a rischio nell mondo";
+    boxRightTitle = "Specie a rischio nel mondo";
     boxRightValue = globalTotals.threatenedSpecies;
 
-    headerText = "Scorri il grafico per vedere le specie a rischio per area e la loro percentuale \n sul totale mondiale, e clicca per scoprire le cause.";
+    headerText = "Fai hover sul grafico per vedere le specie a rischio per area e la loro percentuale \n sul totale mondiale. Clicca per scoprire le cause.";
   }
 
   const boxGap = 12;

@@ -21,7 +21,7 @@ const popupData = {
   chromista: {
     title: "Regno Chromista",
     description_part1: "Il regno Chromista include organismi molto diversi tra loro: dalle diatomee microscopiche che producono una grande percentuale dell’ossigeno globale, alle alghe brune giganti che formano vere foreste marine. Questi organismi non solo sostengono le catene alimentari oceaniche, ma regolano l’assorbimento di carbonio, influenzando direttamente il clima.",
-    description_part2: "Sebbene le specie valutate siano 18, 6 di queste, principalmente alghe brune, risultano già minacciate. La perdita di specie all’interno dei chromisti ha ripercussioni profonde sulla salute dei mari e sulla capacità del pianeta di mantenere gli equilibri climatici."
+    description_part2: "Sebbene le specie valutate siano solo 18, ben 6 di queste, principalmente alghe brune, risultano già minacciate. La perdita di specie all’interno dei chromisti ha ripercussioni profonde sulla salute dei mari e sulla capacità del pianeta di mantenere gli equilibri climatici."
   }
 };
 

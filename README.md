@@ -47,4 +47,3 @@ Il team
 
 Licenza
 <br> Specie a rischio © 2026 by Emily Anazco, Ludovica De Marco, Rebecca Ditaranto, Isabella Lena, Aroa Lopez Rabasseda, Alessandro Polistena, Federica Travagnin is licensed under CC BY 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by/4.0/
-
